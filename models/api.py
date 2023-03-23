@@ -1,5 +1,6 @@
 from models.models import (
     Document,
+    DocumentChunkWithScore,
     DocumentMetadataFilter,
     Query,
     QueryResult,

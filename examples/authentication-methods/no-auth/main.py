@@ -1,8 +1,10 @@
 # This is a version of the main.py file found in ../../../server/main.py without authentication.
 # Copy and paste this into the main file at ../../../server/main.py if you choose to use no authentication for your retrieval plugin.
-from typing import Optional
+
+import os
 import uvicorn
-from fastapi import FastAPI, File, Form, HTTPException, Body, UploadFile
+from fastapi import FastAPI, File, HTTPException, Depends, Body, UploadFile
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
 
 from models.api import (
@@ -15,8 +17,6 @@ from models.api import (
 )
 from datastore.factory import get_datastore
 from services.file import get_document_from_file
-
-from models.models import DocumentMetadata, Source
 
 
 app = FastAPI()
@@ -38,18 +38,8 @@ app.mount("/sub", sub_app)
 )
 async def upsert_file(
     file: UploadFile = File(...),
-    metadata: Optional[str] = Form(None),
 ):
-    try:
-        metadata_obj = (
-            DocumentMetadata.parse_raw(metadata)
-            if metadata
-            else DocumentMetadata(source=Source.file)
-        )
-    except:
-        metadata_obj = DocumentMetadata(source=Source.file)
-
-    document = await get_document_from_file(file, metadata_obj)
+    document = await get_document_from_file(file)
 
     try:
         ids = await datastore.upsert([document])
@@ -94,7 +84,7 @@ async def query_main(
 @sub_app.post(
     "/query",
     response_model=QueryResponse,
-    description="Accepts search query objects with query and optional filter. Break down complex questions into sub-questions. Refine results by criteria, e.g. time / source, don't do this often. Split queries if ResponseTooLargeError occurs.",
+    description='Accepts an array of search query objects, each with a natural language query string ("query") and an optional metadata filter ("filter"). Filters are not necessary in most cases, but can sometimes help refine search results based on criteria such as document source or time period. Send multiple queries to compare information from different sources or break down complex questions into sub-questions. If you receive a ResponseTooLargeError, try splitting up the queries into multiple calls to this endpoint.',
 )
 async def query(
     request: QueryRequest = Body(...),

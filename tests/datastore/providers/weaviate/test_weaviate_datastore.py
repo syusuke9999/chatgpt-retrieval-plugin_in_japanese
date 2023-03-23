@@ -1,20 +1,18 @@
-import logging
-import os
-
 import pytest
-import weaviate
-from _pytest.logging import LogCaptureFixture
 from fastapi.testclient import TestClient
-from loguru import logger
 from weaviate import Client
-
+import weaviate
+import os
+from models.models import DocumentMetadataFilter
+from server.main import app
 from datastore.providers.weaviate_datastore import (
     SCHEMA,
     WeaviateDataStore,
     extract_schema_properties,
 )
-from models.models import DocumentMetadataFilter, Source
-from server.main import app
+import logging
+from loguru import logger
+from _pytest.logging import LogCaptureFixture
 
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 
@@ -99,6 +97,30 @@ def documents():
     documents.append(partial_metadata_doc)
 
     yield documents
+
+
+@pytest.fixture
+def mock_env_public_access(monkeypatch):
+    monkeypatch.setattr(
+        "datastore.providers.weaviate_datastore.WEAVIATE_USERNAME", None
+    )
+    monkeypatch.setattr(
+        "datastore.providers.weaviate_datastore.WEAVIATE_PASSWORD", None
+    )
+
+
+@pytest.fixture
+def mock_env_resource_owner_password_flow(monkeypatch):
+    monkeypatch.setattr(
+        "datastore.providers.weaviate_datastore.WEAVIATE_SCOPES",
+        ["schema:read", "schema:write"],
+    )
+    monkeypatch.setattr(
+        "datastore.providers.weaviate_datastore.WEAVIATE_USERNAME", "admin"
+    )
+    monkeypatch.setattr(
+        "datastore.providers.weaviate_datastore.WEAVIATE_PASSWORD", "abc123"
+    )
 
 
 @pytest.fixture
@@ -315,38 +337,16 @@ def test_delete(test_db, weaviate_client, caplog):
     assert not weaviate_client.data_object.get()["objects"]
 
 
-def test_build_auth_credentials(monkeypatch):
-    # Test when WEAVIATE_URL ends with weaviate.network and WEAVIATE_API_KEY is set
-    with monkeypatch.context() as m:
-        m.setenv("WEAVIATE_URL", "https://example.weaviate.network")
-        m.setenv("WEAVIATE_API_KEY", "your_api_key")
-        auth_credentials = WeaviateDataStore._build_auth_credentials()
-        assert auth_credentials is not None
-        assert isinstance(auth_credentials, weaviate.auth.AuthApiKey)
-        assert auth_credentials.api_key == "your_api_key"
+def test_access_with_username_password(mock_env_resource_owner_password_flow):
+    auth_credentials = WeaviateDataStore._build_auth_credentials()
 
-    # Test when WEAVIATE_URL ends with weaviate.network and WEAVIATE_API_KEY is not set
-    with monkeypatch.context() as m:
-        m.setenv("WEAVIATE_URL", "https://example.weaviate.network")
-        m.delenv("WEAVIATE_API_KEY", raising=False)
-        with pytest.raises(
-            ValueError, match="WEAVIATE_API_KEY environment variable is not set"
-        ):
-            WeaviateDataStore._build_auth_credentials()
+    assert isinstance(auth_credentials, weaviate.auth.AuthClientPassword)
 
-    # Test when WEAVIATE_URL does not end with weaviate.network
-    with monkeypatch.context() as m:
-        m.setenv("WEAVIATE_URL", "https://example.notweaviate.network")
-        m.setenv("WEAVIATE_API_KEY", "your_api_key")
-        auth_credentials = WeaviateDataStore._build_auth_credentials()
-        assert auth_credentials is None
 
-    # Test when WEAVIATE_URL is not set
-    with monkeypatch.context() as m:
-        m.delenv("WEAVIATE_URL", raising=False)
-        m.setenv("WEAVIATE_API_KEY", "your_api_key")
-        auth_credentials = WeaviateDataStore._build_auth_credentials()
-        assert auth_credentials is None
+def test_public_access(mock_env_public_access):
+    auth_credentials = WeaviateDataStore._build_auth_credentials()
+
+    assert auth_credentials is None
 
 
 def test_extract_schema_properties():
@@ -480,7 +480,7 @@ def test_upsert_same_docid(test_db, weaviate_client):
     document = {
         "id": doc_id,
         "text": text,
-        "metadata": {"source": Source.email},
+        "metadata": {"source": "email"},
     }
 
     response = client.post("/upsert", json=build_upsert_payload(document))
@@ -489,12 +489,12 @@ def test_upsert_same_docid(test_db, weaviate_client):
     weaviate_doc = get_doc_by_document_id(doc_id)
     assert len(weaviate_doc) == 2
     for chunk in weaviate_doc:
-        assert chunk["source"] == Source.email
+        assert chunk["source"] == "email"
 
     # now update the source to file
     # user still has to specify the text
     # because test is a required field
-    document["metadata"]["source"] = Source.file
+    document["metadata"]["source"] = "file"
     response = client.post("/upsert", json=build_upsert_payload(document))
     assert response.status_code == 200
 
@@ -519,20 +519,3 @@ def test_upsert_same_docid(test_db, weaviate_client):
     # but it is None right now because an
     # update function is out of scope
     assert weaviate_doc[0]["source"] is None
-
-
-@pytest.mark.parametrize(
-    "url, expected_result",
-    [
-        ("https://example.weaviate.network", True),
-        ("https://example.weaviate.network/", True),
-        ("https://example.weaviate.cloud", True),
-        ("https://example.weaviate.cloud/", True),
-        ("https://example.notweaviate.network", False),
-        ("https://weaviate.network.example.com", False),
-        ("https://example.weaviate.network/somepage", False),
-        ("", False),
-    ],
-)
-def test_is_wcs_domain(url, expected_result):
-    assert WeaviateDataStore._is_wcs_domain(url) == expected_result

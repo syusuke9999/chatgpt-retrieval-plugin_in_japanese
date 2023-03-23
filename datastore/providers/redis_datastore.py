@@ -40,14 +40,29 @@ assert REDIS_INDEX_TYPE in ("FLAT", "HNSW")
 VECTOR_DIMENSION = 1536
 
 # RediSearch constants
-REDIS_REQUIRED_MODULES = [
-    {"name": "search", "ver": 20600},
-    {"name": "ReJSON", "ver": 20404}
-]
+REDIS_DEFAULT_ESCAPED_CHARS = re.compile(r"[,.<>{}\[\]\\\"\':;!@#$%^&*()\-+=~\/ ]")
+REDIS_SEARCH_SCHEMA = {
+    "document_id": TagField("$.document_id", as_name="document_id"),
+    "metadata": {
+        # "source_id": TagField("$.metadata.source_id", as_name="source_id"),
+        "source": TagField("$.metadata.source", as_name="source"),
+        # "author": TextField("$.metadata.author", as_name="author"),
+        # "created_at": NumericField("$.metadata.created_at", as_name="created_at"),
+    },
+    "embedding": VectorField(
+        "$.embedding",
+        REDIS_INDEX_TYPE,
+        {
+            "TYPE": "FLOAT64",
+            "DIM": VECTOR_DIMENSION,
+            "DISTANCE_METRIC": REDIS_DISTANCE_METRIC,
+            "INITIAL_CAP": 500,
+        },
+        as_name="embedding",
+    ),
+}
 
-REDIS_DEFAULT_ESCAPED_CHARS = re.compile(r"[,.<>{}\[\]\\\"\':;!@#$%^&()\-+=~\/ ]")
 
-# Helper functions
 def unpack_schema(d: dict):
     for v in d.values():
         if isinstance(v, dict):
@@ -55,30 +70,19 @@ def unpack_schema(d: dict):
         else:
             yield v
 
-async def _check_redis_module_exist(client: redis.Redis, modules: List[dict]):
-    installed_modules = (await client.info()).get("modules", [])
-    installed_modules = {module["name"]: module for module in installed_modules}
-    for module in modules:
-        if module["name"] not in installed_modules or int(installed_modules[module["name"]]["ver"]) < int(module["ver"]):
-            error_message = "You must add the RediSearch (>= 2.6) and ReJSON (>= 2.4) modules from Redis Stack. " \
-                "Please refer to Redis Stack docs: https://redis.io/docs/stack/"
-            logging.error(error_message)
-            raise AttributeError(error_message)
-
 
 class RedisDataStore(DataStore):
-    def __init__(self, client: redis.Redis, redisearch_schema: dict):
+    def __init__(self, client: redis.Redis):
         self.client = client
-        self._schema = redisearch_schema
-        # Init default metadata with sentinel values in case the document written has no metadata
+        # Init default metadata with sentinal values in case the document written has no metadata
         self._default_metadata = {
-            field: (0 if field == "created_at" else "_null_") for field in redisearch_schema["metadata"]
+            field: "_null_" for field in REDIS_SEARCH_SCHEMA["metadata"]
         }
 
     ### Redis Helper Methods ###
 
     @classmethod
-    async def init(cls, **kwargs):
+    async def init(cls):
         """
         Setup the index if it does not exist.
         """
@@ -92,28 +96,6 @@ class RedisDataStore(DataStore):
             logging.error(f"Error setting up Redis: {e}")
             raise e
 
-        await _check_redis_module_exist(client, modules=REDIS_REQUIRED_MODULES)
-
-        dim = kwargs.get("dim", VECTOR_DIMENSION)
-        redisearch_schema = {
-            "metadata": {
-                "document_id": TagField("$.metadata.document_id", as_name="document_id"),
-                "source_id": TagField("$.metadata.source_id", as_name="source_id"),
-                "source": TagField("$.metadata.source", as_name="source"),
-                "author": TextField("$.metadata.author", as_name="author"),
-                "created_at": NumericField("$.metadata.created_at", as_name="created_at"),
-            },
-            "embedding": VectorField(
-                "$.embedding",
-                REDIS_INDEX_TYPE,
-                {
-                    "TYPE": "FLOAT64",
-                    "DIM": dim,
-                    "DISTANCE_METRIC": REDIS_DISTANCE_METRIC,
-                },
-                as_name="embedding",
-            ),
-        }
         try:
             # Check for existence of RediSearch Index
             await client.ft(REDIS_INDEX_NAME).info()
@@ -124,12 +106,11 @@ class RedisDataStore(DataStore):
             definition = IndexDefinition(
                 prefix=[REDIS_DOC_PREFIX], index_type=IndexType.JSON
             )
-            fields = list(unpack_schema(redisearch_schema))
-            logging.info(f"Creating index with fields: {fields}")
+            fields = list(unpack_schema(REDIS_SEARCH_SCHEMA))
             await client.ft(REDIS_INDEX_NAME).create_index(
                 fields=fields, definition=definition
             )
-        return cls(client, redisearch_schema)
+        return cls(client)
 
     @staticmethod
     def _redis_key(document_id: str, chunk_id: str) -> str:
@@ -201,6 +182,7 @@ class RedisDataStore(DataStore):
         Returns:
             RediSearchQuery: Query for RediSearch.
         """
+        query_str: str = ""
         filter_str: str = ""
 
         # RediSearch field type to query string
@@ -208,7 +190,7 @@ class RedisDataStore(DataStore):
             if isinstance(typ, TagField):
                 return f"@{field}:{{{self._escape(value)}}} "
             elif isinstance(typ, TextField):
-                return f"@{field}:{value} "
+                return f"@{field}:{self._escape(value)} "
             elif isinstance(typ, NumericField):
                 num = to_unix_timestamp(value)
                 match field:
@@ -219,21 +201,20 @@ class RedisDataStore(DataStore):
 
         # Build filter
         if query.filter:
-            redisearch_schema = self._schema
             for field, value in query.filter.__dict__.items():
                 if not value:
                     continue
-                if field in redisearch_schema:
-                    filter_str += _typ_to_str(redisearch_schema[field], field, value)
-                elif field in redisearch_schema["metadata"]:
+                if field in REDIS_SEARCH_SCHEMA:
+                    filter_str += _typ_to_str(REDIS_SEARCH_SCHEMA[field], field, value)
+                elif field in REDIS_SEARCH_SCHEMA["metadata"]:
                     if field == "source":  # handle the enum
                         value = value.value
                     filter_str += _typ_to_str(
-                        redisearch_schema["metadata"][field], field, value
+                        REDIS_SEARCH_SCHEMA["metadata"][field], field, value
                     )
                 elif field in ["start_date", "end_date"]:
                     filter_str += _typ_to_str(
-                        redisearch_schema["metadata"]["created_at"], field, value
+                        REDIS_SEARCH_SCHEMA["metadata"]["created_at"], field, value
                     )
 
         # Postprocess filter string
@@ -277,14 +258,19 @@ class RedisDataStore(DataStore):
             # Append the id to the ids list
             doc_ids.append(doc_id)
 
-            # Write chunks in a pipelines
-            async with self.client.pipeline(transaction=False) as pipe:
-                for chunk in chunk_list:
-                    key = self._redis_key(doc_id, chunk.id)
-                    data = self._get_redis_chunk(chunk)
-                    await pipe.json().set(key, "$", data)
-                await pipe.execute()
+            # Write all chunks associated with a document
+            n = min(len(chunk_list), 50)
+            semaphore = asyncio.Semaphore(n)
 
+            async def _write(chunk: DocumentChunk):
+                async with semaphore:
+                    # Get redis key and chunk object
+                    key = self._redis_key(doc_id, chunk.id)  # type: ignore
+                    data = self._get_redis_chunk(chunk)
+                    await self.client.json().set(key, "$", data)
+
+            # Concurrently gather writes
+            await asyncio.gather(*[_write(chunk) for i, chunk in enumerate(chunk_list)])
         return doc_ids
 
     async def _query(
@@ -295,45 +281,54 @@ class RedisDataStore(DataStore):
         Takes in a list of queries with embeddings and filters and
         returns a list of query results with matching document chunks and scores.
         """
-        # Prepare query responses and results object
+        # Prepare results object
         results: List[QueryResult] = []
 
-        # Gather query results in a pipeline
-        logging.info(f"Gathering {len(queries)} query results")
-        for query in queries:
+        # Use asyncio for concurrent search
+        n = min(len(queries), 50)
+        semaphore = asyncio.Semaphore(n)
 
+        async def _single_query(query: QueryWithEmbedding) -> QueryResult:
             logging.info(f"Query: {query.query}")
-            query_results: List[DocumentChunkWithScore] = []
-
             # Extract Redis query
             redis_query: RediSearchQuery = self._get_redis_query(query)
-            embedding = np.array(query.embedding, dtype=np.float64).tobytes()
+            # Perform a single query
+            async with semaphore:
+                embedding = np.array(query.embedding, dtype=np.float64).tobytes()
+                # Get vector query response from Redis
+                query_response = await self.client.ft(REDIS_INDEX_NAME).search(
+                    redis_query, {"embedding": embedding}  # type: ignore
+                )
+                return query_response
 
-            # Perform vector search
-            query_response = await self.client.ft(REDIS_INDEX_NAME).search(
-                redis_query, {"embedding": embedding}
-            )
+        # Concurrently gather query results
+        logging.info(f"Gathering {len(queries)} query results", flush=True)  # type: ignore
+        query_responses = await asyncio.gather(
+            *[_single_query(query) for query in queries]
+        )
 
-            # Iterate through the most similar documents
+        # Iterate through responses and construct results
+        for query, query_response in zip(queries, query_responses):
+
+            # Iterate through nearest neighbor documents
+            query_results: List[DocumentChunkWithScore] = []
             for doc in query_response.docs:
-                # Load JSON data
+                # Create a document chunk with score object with the result data
                 doc_json = json.loads(doc.json)
-                # Create document chunk object with score
                 result = DocumentChunkWithScore(
                     id=doc_json["metadata"]["document_id"],
                     score=doc.score,
                     text=doc_json["text"],
-                    metadata=doc_json["metadata"]
+                    metadata=doc_json["metadata"],
                 )
                 query_results.append(result)
 
             # Add to overall results
             results.append(QueryResult(query=query.query, results=query_results))
-
         return results
 
     async def _find_keys(self, pattern: str) -> List[str]:
-        return [key async for key in self.client.scan_iter(pattern)]
+        return await self.client.keys(pattern=pattern)
 
     async def delete(
         self,
@@ -361,9 +356,7 @@ class RedisDataStore(DataStore):
             # TODO - extend this to work with other metadata filters?
             if filter.document_id:
                 try:
-                    keys = await self._find_keys(
-                        f"{REDIS_DOC_PREFIX}:{filter.document_id}:*"
-                    )
+                    keys = await self._find_keys(f"{REDIS_DOC_PREFIX}:{filter.document_id}:*")
                     await self._redis_delete(keys)
                     logging.info(f"Deleted document {filter.document_id} successfully")
                 except Exception as e:
@@ -377,9 +370,7 @@ class RedisDataStore(DataStore):
                 keys = []
                 # find all keys associated with the document ids
                 for document_id in ids:
-                    doc_keys = await self._find_keys(
-                        pattern=f"{REDIS_DOC_PREFIX}:{document_id}:*"
-                    )
+                    doc_keys = await self._find_keys(pattern=f"{REDIS_DOC_PREFIX}:{document_id}:*")
                     keys.extend(doc_keys)
                 # delete all keys
                 logging.info(f"Deleting {len(keys)} keys from Redis")

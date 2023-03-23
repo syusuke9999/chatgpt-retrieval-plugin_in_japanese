@@ -1,6 +1,5 @@
 from typing import Dict, List, Optional, Tuple
 import uuid
-import os
 from models.models import Document, DocumentChunk, DocumentChunkMetadata
 
 import tiktoken
@@ -15,8 +14,8 @@ tokenizer = tiktoken.get_encoding(
 # Constants
 CHUNK_SIZE = 200  # The target size of each text chunk in tokens
 MIN_CHUNK_SIZE_CHARS = 350  # The minimum size of each text chunk in characters
-MIN_CHUNK_LENGTH_TO_EMBED = 5  # Discard chunks shorter than this
-EMBEDDINGS_BATCH_SIZE = int(os.environ.get("OPENAI_EMBEDDING_BATCH_SIZE", 128))  # The number of embeddings to request at a time
+MIN_CHUNK_LENGTH_TO_EMBED = 30  # Discard chunks shorter than this
+EMBEDDINGS_BATCH_SIZE = 128  # The number of embeddings to request at a time
 MAX_NUM_CHUNKS = 10000  # The maximum number of chunks to generate from a text
 
 
@@ -71,16 +70,20 @@ def get_text_chunks(text: str, chunk_token_size: Optional[int]) -> List[str]:
         )
 
         # If there is a punctuation mark, and the last punctuation index is before MIN_CHUNK_SIZE_CHARS
-        if last_punctuation != -1 and last_punctuation > MIN_CHUNK_SIZE_CHARS:
+        if (
+            last_punctuation != -1
+            and last_punctuation > MIN_CHUNK_SIZE_CHARS
+            and last_punctuation > MIN_CHUNK_SIZE_CHARS
+        ):
             # Truncate the chunk text at the punctuation mark
             chunk_text = chunk_text[: last_punctuation + 1]
 
         # Remove any newline characters and strip any leading or trailing whitespace
-        chunk_text_to_append = chunk_text.replace("\n", " ").strip()
+        chunk_text = chunk_text.replace("\n", " ").strip()
 
-        if len(chunk_text_to_append) > MIN_CHUNK_LENGTH_TO_EMBED:
+        if len(chunk_text) > MIN_CHUNK_LENGTH_TO_EMBED:
             # Append the chunk text to the list of chunks
-            chunks.append(chunk_text_to_append)
+            chunks.append(chunk_text)
 
         # Remove the tokens corresponding to the chunk text from the remaining tokens
         tokens = tokens[len(tokenizer.encode(chunk_text, disallowed_special=())) :]

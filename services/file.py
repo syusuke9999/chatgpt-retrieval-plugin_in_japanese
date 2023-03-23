@@ -11,11 +11,11 @@ import pptx
 from models.models import Document, DocumentMetadata
 
 
-async def get_document_from_file(
-    file: UploadFile, metadata: DocumentMetadata
-) -> Document:
+async def get_document_from_file(file: UploadFile) -> Document:
     extracted_text = await extract_text_from_form_file(file)
-
+    print(f"extracted_text:")
+    # get metadata
+    metadata = DocumentMetadata()
     doc = Document(text=extracted_text, metadata=metadata)
 
     return doc
@@ -34,12 +34,9 @@ def extract_text_from_filepath(filepath: str, mimetype: Optional[str] = None) ->
         else:
             raise Exception("Unsupported file type")
 
-    try:
-        with open(filepath, "rb") as file:
-            extracted_text = extract_text_from_file(file, mimetype)
-    except Exception as e:
-        print(f"Error: {e}")
-        raise e
+    # Open the file in binary mode
+    file = open(filepath, "rb")
+    extracted_text = extract_text_from_file(file, mimetype)
 
     return extracted_text
 
@@ -48,7 +45,9 @@ def extract_text_from_file(file: BufferedReader, mimetype: str) -> str:
     if mimetype == "application/pdf":
         # Extract text from pdf using PyPDF2
         reader = PdfReader(file)
-        extracted_text = " ".join([page.extract_text() for page in reader.pages])
+        extracted_text = ""
+        for page in reader.pages:
+            extracted_text += page.extract_text()
     elif mimetype == "text/plain" or mimetype == "text/markdown":
         # Read text from plain text file
         extracted_text = file.read().decode("utf-8")
@@ -81,8 +80,10 @@ def extract_text_from_file(file: BufferedReader, mimetype: str) -> str:
                     extracted_text += "\n"
     else:
         # Unsupported file type
+        file.close()
         raise ValueError("Unsupported file type: {}".format(mimetype))
 
+    file.close()
     return extracted_text
 
 
@@ -99,7 +100,7 @@ async def extract_text_from_form_file(file: UploadFile):
 
     temp_file_path = "/tmp/temp_file"
 
-    # write the file to a temporary location
+    # write the file to a temporary locatoin
     with open(temp_file_path, "wb") as f:
         f.write(file_stream)
 

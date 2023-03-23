@@ -1,6 +1,6 @@
 from typing import List
 import openai
-import os
+
 
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 
@@ -20,15 +20,8 @@ def get_embeddings(texts: List[str]) -> List[List[float]]:
         Exception: If the OpenAI API call fails.
     """
     # Call the OpenAI API to get the embeddings
-    # NOTE: Azure Open AI requires deployment id
-    deployment = os.environ.get("OPENAI_EMBEDDINGMODEL_DEPLOYMENTID")
+    response = openai.Embedding.create(input=texts, model="text-embedding-ada-002")
 
-    response = {}
-    if deployment == None:
-        response = openai.Embedding.create(input=texts, model="text-embedding-ada-002")
-    else:
-        response = openai.Embedding.create(input=texts, deployment_id=deployment)
-    
     # Extract the embedding data from the response
     data = response["data"]  # type: ignore
 
@@ -40,7 +33,6 @@ def get_embeddings(texts: List[str]) -> List[List[float]]:
 def get_chat_completion(
     messages,
     model="gpt-3.5-turbo",  # use "gpt-4" for better results
-    deployment_id = None
 ):
     """
     Generate a chat completion using OpenAI's chat completion API.
@@ -56,19 +48,10 @@ def get_chat_completion(
         Exception: If the OpenAI API call fails.
     """
     # call the OpenAI chat completion API with the given messages
-    # Note: Azure Open AI requires deployment id
-    response = {}
-    if deployment_id == None:
-        response = openai.ChatCompletion.create(
-            model=model,
-            messages=messages,
-        )
-    else:
-        response = openai.ChatCompletion.create(
-            deployment_id = deployment_id,
-            messages=messages,
-        )
-    
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+    )
 
     choices = response["choices"]  # type: ignore
     completion = choices[0].message.content.strip()
