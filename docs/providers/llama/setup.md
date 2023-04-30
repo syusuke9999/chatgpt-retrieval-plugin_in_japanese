@@ -1,6 +1,6 @@
 # LlamaIndex
 
-[LlamaIndex](https://github.com/jerryjliu/llama_index)は、LLMを外部データと接続するための中央インターフェースです。
+[LlamaIndex]((https://github.com/jerryjliu/llama_index))はLLMと外部データを接続する中心的なインターフェイスを提供するプロジェクトです。
 これは、ChatGPTを使用するための構造化および非構造化データに対するインメモリインデックスのスイートを提供します。
 標準のベクターデータベースとは異なり、LlamaIndexはさまざまなユースケースに最適化されたインデックス戦略（例：ツリー、キーワードテーブル、ナレッジグラフ）をサポートしています。
 軽量で使いやすく、追加のデプロイメントは必要ありません。
