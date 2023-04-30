@@ -1,103 +1,105 @@
 # Weaviate
 
-## Set up a Weaviate Instance
+## Weaviateインスタンスのセットアップ
 
-[Weaviate](https://weaviate.io/) is an open-source vector search engine designed to scale seamlessly into billions of data objects. This implementation supports hybrid search out-of-the-box (meaning it will perform better for keyword searches).
+[Weaviate](https://weaviate.io/)は、数十億のデータオブジェクトにシームレスにスケールするように設計されたオープンソースのベクター検索エンジンです。この実装は、ハイブリッド検索をデフォルトでサポートしています（つまり、キーワード検索のパフォーマンスが向上します）。
 
-You can run Weaviate in 4 ways:
+Weaviateは4つの方法で実行できます。
 
-- **SaaS** – with [Weaviate Cloud Services (WCS)](https://weaviate.io/pricing).
+- **SaaS** - [Weaviate Cloud Services (WCS)](https://weaviate.io/pricing)を使用して。
 
-  WCS is a fully managed service that takes care of hosting, scaling, and updating your Weaviate instance. You can try it out for free with a sandbox that lasts for 30 days.
+  WCSは、ホスティング、スケーリング、およびWeaviateインスタンスの更新を管理する完全にマネージドなサービスです。30日間の無料サンドボックスで試すことができます。
 
-  To set up a SaaS Weaviate instance with WCS:
+  WCSでSaaS Weaviateインスタンスをセットアップするには：
 
-  1.  Navigate to [Weaviate Cloud Console](https://console.weaviate.io/).
-  2.  Register or sign in to your WCS account.
-  3.  Create a new cluster with the following settings:
-      - `Name` – a unique name for your cluster. The name will become part of the URL used to access this instance.
-      - `Subscription Tier` – Sandbox for a free trial, or contact [hello@weaviate.io](mailto:hello@weaviate.io) for other options.
-      - `Weaviate Version` - The latest version by default.
-      - `OIDC Authentication` – Enabled by default. This requires a username and password to access your instance.
-  4.  Wait for a few minutes until your cluster is ready. You will see a green tick ✔️ when it's done. Copy your cluster URL.
+  1. [Weaviate Cloud Console](https://console.weaviate.io/)に移動します。
+  2. WCSアカウントに登録またはサインインします。
+  3. 次の設定で新しいクラスターを作成します：
+      - `Name` - クラスターの一意の名前。この名前は、このインスタンスにアクセスするために使用されるURLの一部になります。
+      - `Subscription Tier` - 無料試用版の場合はSandboxを選択し、他のオプションについては[hello@weaviate.io](mailto:hello@weaviate.io)までお問い合わせください。
+      - `Weaviate Version` - デフォルトで最新バージョン。
+      - `OIDC Authentication` - デフォルトで有効化されています。これにより、インスタンスにアクセスするためにユーザー名とパスワードが必要になります。
+  4. クラスターが準備できるまで数分お待ちください。完了すると緑色のチェックマーク✔️が表示されます。クラスターのURLをコピーしてください。
 
-- **Hybrid SaaS**
+- **ハイブリッドSaaS**
 
-  > If you need to keep your data on-premise for security or compliance reasons, Weaviate also offers a Hybrid SaaS option: Weaviate runs within your cloud instances, but the cluster is managed remotely by Weaviate. This gives you the benefits of a managed service without sending data to an external party.
+  > セキュリティやコンプライアンスの理由でデータをオンプレミスに保持する必要がある場合、WeaviateはハイブリッドSaaSオプションも提供しています。Weaviateはあなたのクラウドインスタンス内で実行されますが、クラスターはWeaviateによってリモートで管理されます。これにより、外部パーティにデータを送信せずにマネージドサービスの利点を得ることができます。
 
-  The Weaviate Hybrid SaaS is a custom solution. If you are interested in this option, please reach out to [hello@weaviate.io](mailto:hello@weaviate.io).
+  WeaviateハイブリッドSaaSはカスタムソリューションです。このオプションに興味がある場合は、[hello@weaviate.io](mailto:hello@weaviate.io)までお問い合わせください。
 
-- **Self-hosted** – with a Docker container
+- **セルフホスト** - Dockerコンテナを使用して
 
-  To set up a Weaviate instance with Docker:
+  DockerでWeaviateインスタンスをセットアップするには：
 
-  1. [Install Docker](https://docs.docker.com/engine/install/) on your local machine if it is not already installed.
-  2. [Install the Docker Compose Plugin](https://docs.docker.com/compose/install/)
-  3. Download a `docker-compose.yml` file with this `curl` command:
+  1. まだインストールされていない場合は、ローカルマシンに[Dockerをインストール](https://docs.docker.com/engine/install/)します。
+  2. [Docker Composeプラグインをインストール](https://docs.docker.com/compose/install/)します。
+  3. この`curl`コマンドで`docker-compose.yml`ファイルをダウンロードします：
 
      ```
      curl -o docker-compose.yml "https://configuration.weaviate.io/v2/docker-compose/docker-compose.yml?modules=standalone&runtime=docker-compose&weaviate_version=v1.18.0"
      ```
 
-     Alternatively, you can use Weaviate's docker compose [configuration tool](https://weaviate.io/developers/weaviate/installation/docker-compose) to generate your own `docker-compose.yml` file.
+     または、Weaviateのdocker compose [設定ツール](https://weaviate.io/developers/weaviate/installation/docker-compose)を使用して独自の`docker-compose.yml`ファイルを生成できます。
 
-  4. Run `docker compose up -d` to spin up a Weaviate instance.
+  4. Weaviateインスタンスを起動するには、`docker compose up -d`を実行します。
 
-     > To shut it down, run `docker compose down`.
+     > シャットダウンするには、`docker compose down`を実行します。
 
-- **Self-hosted** – with a Kubernetes cluster
+- **セルフホスト** - Kubernetesクラスターを使用して
 
-  To configure a self-hosted instance with Kubernetes, follow Weaviate's [documentation](https://weaviate.io/developers/weaviate/installation/kubernetes).
+  Kubernetesでセルフホストインスタンスを設定するには、Weaviateの[ドキュメント](https://weaviate.io/developers/weaviate/installation/kubernetes)に従ってください。
 
-## Configure Weaviate Environment Variables
+## Weaviate環境変数の設定
 
-You need to set some environment variables to connect to your Weaviate instance.
+Weaviateインスタンスに接続するためにいくつかの環境変数を設定する必要があります。
 
-**Retrieval App Environment Variables**
+**Retrieval App環境変数**
 
-| Name             | Required | Description                                                                          |
-| ---------------- | -------- |--------------------------------------------------------------------------------------|
-| `DATASTORE`      | Yes      | Datastore name. Set this to `weaviate`                                               |
-| `BEARER_TOKEN`   | Yes      | Your [secret token](/README.md#general-environment-variables) (not the Weaviate one) |
-| `OPENAI_API_KEY` | Yes      | Your OpenAI API key                                                                  |
+| 名前               | 必須 | 説明                                                                             |
+|------------------|----|--------------------------------------------------------------------------------|
+| `DATASTORE`      | はい | データストア名。これを`weaviate`に設定してください。                                                |
+| `BEARER_TOKEN`   | はい | あなたの[シークレットトークン](/README.md#general-environment-variables)（Weaviateのものではありません） |
+| `OPENAI_API_KEY` | はい | あなたのOpenAI APIキー                                                               |
 
-**Weaviate Datastore Environment Variables**
+**Weaviate Datastore環境変数**
 
-| Name             | Required | Description                                                        | Default            |
-|------------------| -------- | ------------------------------------------------------------------ | ------------------ |
-| `WEAVIATE_HOST`  | Optional | Your Weaviate instance host address (see notes below)              | `http://127.0.0.1` |
-| `WEAVIATE_PORT`  | Optional | Your Weaviate port number (use 443 for WCS)                        | 8080               |
-| `WEAVIATE_CLASS` | Optional | Your chosen Weaviate class/collection name to store your documents | OpenAIDocument     |
+| 名前               | 必須 | 説明                                    | デフォルト              |
+|------------------|----|---------------------------------------|--------------------|
+| `WEAVIATE_HOST`  | 任意 | Weaviateインスタンスのホストアドレス（以下の注意事項を参照）    | `http://127.0.0.1` |
+| `WEAVIATE_PORT`  | 任意 | Weaviateのポート番号（WCSの場合は443を使用）         | 8080               |
+| `WEAVIATE_CLASS` | 任意 | ドキュメントを保存するために選択したWeaviateクラス/コレクション名 | OpenAIDocument     |
 
-> For **WCS instances**, set `WEAVIATE_PORT` to 443 and `WEAVIATE_HOST` to `https://(wcs-instance-name).weaviate.network`. For example: `https://my-project.weaviate.network/`.
+> **WCSインスタンスの場合**、`WEAVIATE_PORT`を443に設定し、`WEAVIATE_HOST`を`https://(wcs-instance-name).weaviate.network`に設定します。例：`https://my-project.weaviate.network/`。
 
-> For **self-hosted instances**, if your instance is not at 127.0.0.1:8080, set `WEAVIATE_HOST` and `WEAVIATE_PORT` accordingly. For example: `WEAVIATE_HOST=http://localhost/` and `WEAVIATE_PORT=4040`.
+> **セルフホストインスタンスの場合**、インスタンスが127.0.0.1:8080以外の場所にある場合は、`WEAVIATE_HOST`と`WEAVIATE_PORT`をそれに応じて設定します。例：`WEAVIATE_HOST=http://localhost/`および`WEAVIATE_PORT=4040`。
 
-**Weaviate Auth Environment Variables**
+**Weaviate認証環境変数**
 
-If you enabled OIDC authentication for your Weaviate instance (recommended for WCS instances), set the following environment variables. If you enabled anonymous access, skip this section.
+WeaviateインスタンスにOIDC認証を有効にした場合（WCSインスタンスでは推奨）、次の環境変数を設定します。匿名アクセスを有効にした場合は、このセクションをスキップしてください。
+**Weaviate認証環境変数**
 
-| Name                | Required | Description                    |
-| ------------------- | -------- | ------------------------------ |
-| `WEAVIATE_USERNAME` | Yes      | Your OIDC or WCS username      |
-| `WEAVIATE_PASSWORD` | Yes      | Your OIDC or WCS password      |
-| `WEAVIATE_SCOPES`   | Optional | Space-separated list of scopes |
+WeaviateインスタンスにOIDC認証を有効にした場合（WCSインスタンスでは推奨）、次の環境変数を設定します。匿名アクセスを有効にした場合は、このセクションをスキップしてください。
 
-Learn more about [authentication in Weaviate](https://weaviate.io/developers/weaviate/configuration/authentication#overview) and the [Python client authentication](https://weaviate-python-client.readthedocs.io/en/stable/weaviate.auth.html).
+| 名前                | 必須 | 説明                    |
+| ------------------- | ---- | ---------------------- |
+| `WEAVIATE_USERNAME` | はい | OIDCまたはWCSのユーザー名 |
+| `WEAVIATE_PASSWORD` | はい | OIDCまたはWCSのパスワード |
+| `WEAVIATE_SCOPES`   | 任意 | スコープのスペース区切りリスト |
+Weaviateの認証については、[Weaviateの認証](https://weaviate.io/developers/weaviate/configuration/authentication#overview)と[Pythonクライアント認証](https://weaviate-python-client.readthedocs.io/en/stable/weaviate.auth.html)を参照してください。
 
-**Weaviate Batch Import Environment Variables**
+**Weaviateバッチインポート環境変数**
 
-Weaviate uses a batching mechanism to perform operations in bulk. This makes importing and updating your data faster and more efficient. You can adjust the batch settings with these optional environment variables:
+Weaviateは、バッチ処理機構を使用して、一括で操作を行います。これにより、データのインポートや更新がより速く、効率的になります。以下のオプションの環境変数でバッチ設定を調整できます。
 
-| Name                             | Required | Description                                                  | Default |
-| -------------------------------- | -------- | ------------------------------------------------------------ | ------- |
-| `WEAVIATE_BATCH_SIZE`            | Optional | Number of insert/updates per batch operation                 | 20      |
-| `WEAVIATE_BATCH_DYNAMIC`         | Optional | Lets the batch process decide the batch size                 | False   |
-| `WEAVIATE_BATCH_TIMEOUT_RETRIES` | Optional | Number of retry-on-timeout attempts                          | 3       |
-| `WEAVIATE_BATCH_NUM_WORKERS`     | Optional | The max number of concurrent threads to run batch operations | 1       |
+| 名前                               | 必須 | 説明                   | デフォルト |
+|----------------------------------|----|----------------------|-------|
+| `WEAVIATE_BATCH_SIZE`            | 任意 | バッチ操作ごとの挿入/更新の数      | 20    |
+| `WEAVIATE_BATCH_DYNAMIC`         | 任意 | バッチ処理がバッチサイズを決定する    | False |
+| `WEAVIATE_BATCH_TIMEOUT_RETRIES` | 任意 | タイムアウト時の再試行回数        | 3     |
+| `WEAVIATE_BATCH_NUM_WORKERS`     | 任意 | バッチ操作を実行する並行スレッドの最大数 | 1     |
 
-> **Note:** The optimal `WEAVIATE_BATCH_SIZE` depends on the available resources (RAM, CPU). A higher value means faster bulk operations, but also higher demand for RAM and CPU. If you experience failures during the import process, reduce the batch size.
+> **注意:** 最適な`WEAVIATE_BATCH_SIZE`は、利用可能なリソース（RAM、CPU）に依存します。値が大きいほど、一括操作が速くなりますが、RAMとCPUの要求も高くなります。インポート処理中に失敗が発生した場合は、バッチサイズを減らしてください。
 
-> Setting `WEAVIATE_BATCH_SIZE` to `None` means no limit to the batch size. All insert or update operations would be sent to Weaviate in a single operation. This might be risky, as you lose control over the batch size.
+> `WEAVIATE_BATCH_SIZE`を`None`に設定すると、バッチサイズに制限がありません。すべての挿入または更新操作が、単一の操作でWeaviateに送信されます。これはリスクがある可能性があります。なぜなら、バッチサイズを制御できなくなるからです。
 
-Learn more about [batch configuration in Weaviate](https://weaviate.io/developers/weaviate/client-libraries/python#batch-configuration).
+Weaviateの[バッチ設定](https://weaviate.io/developers/weaviate/client-libraries/python#batch-configuration)について詳しくは、こちらを参照してください。

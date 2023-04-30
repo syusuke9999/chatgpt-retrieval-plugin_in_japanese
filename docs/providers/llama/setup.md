@@ -1,50 +1,47 @@
-
 # LlamaIndex
 
-[LlamaIndex](https://github.com/jerryjliu/llama_index) is a central interface to connect your LLM's with external data.
-It provides a suite of in-memory indices over your unstructured and structured data for use with ChatGPT.
-Unlike standard vector databases, LlamaIndex supports a wide range of indexing strategies (e.g. tree, keyword table, knowledge graph) optimized for different use-cases.
-It is light-weight, easy-to-use, and requires no additional deployment.
-All you need to do is specifying a few environment variables (optionally point to an existing saved Index json file).
-Note that metadata filters in queries are not yet supported.
+[LlamaIndex](https://github.com/jerryjliu/llama_index)は、LLMを外部データと接続するための中央インターフェースです。
+これは、ChatGPTを使用するための構造化および非構造化データに対するインメモリインデックスのスイートを提供します。
+標準のベクターデータベースとは異なり、LlamaIndexはさまざまなユースケースに最適化されたインデックス戦略（例：ツリー、キーワードテーブル、ナレッジグラフ）をサポートしています。
+軽量で使いやすく、追加のデプロイメントは必要ありません。
+環境変数をいくつか指定するだけでよいです（オプションで既存の保存されたIndex jsonファイルを指定することもできます）。
+ただし、クエリ内のメタデータフィルタはまだサポートされていません。
 
-## Setup
-Currently, LlamaIndex requires no additional deployment
-and runs as a part of the Retrieval Plugin.
-It is super easy to setup and great for quick prototyping
-with ChatGPT and your external data.
+## セットアップ
+現在、LlamaIndexは追加のデプロイメントが不要であり、
+Retrieval Pluginの一部として実行されます。
+ChatGPTと外部データを使ったクイックプロトタイピングに最適で、非常に簡単にセットアップできます。
 
-**Retrieval App Environment Variables**
+**検索アプリ環境変数**
 
-| Name             | Required | Description                            |
-| ---------------- | -------- | -------------------------------------- |
-| `DATASTORE`      | Yes      | Datastore name. Set this to `llama` |
-| `BEARER_TOKEN`   | Yes      | Your secret token                      |
-| `OPENAI_API_KEY` | Yes      | Your OpenAI API key                    |
+| 名前               | 必須 | 説明                        |
+|------------------|----|---------------------------|
+| `DATASTORE`      | はい | データストア名。これを `llama`に設定します |
+| `BEARER_TOKEN`   | はい | あなたのシークレットトークン            |
+| `OPENAI_API_KEY` | はい | あなたのOpenAI APIキー          |
 
-**Llama Datastore Environment Variables**
+**Llamaデータストア環境変数**
 
-| Name                            | Required | Description                                                        | Default            |
-| ------------------------------- | -------- | ------------------------------------------------------------------ | ------------------ |
-| `LLAMA_INDEX_TYPE`              | Optional | Index type (see below for details)                                 | `simple_dict`      |
-| `LLAMA_INDEX_JSON_PATH`         | Optional | Path to saved Index json file                                      | None               |
-| `LLAMA_QUERY_KWARGS_JSON_PATH`         | Optional | Path to saved query kwargs json file                                      | None               |
-| `LLAMA_RESPONSE_MODE`           | Optional | Response mode for query                                            | `no_text`          | 
-
-
-**Different Index Types**
-By default, we use a `GPTSimpleVectorIndex` to store document chunks in memory, 
-and retrieve top-k nodes by embedding similarity.
-Different index types are optimized for different data and query use-cases.
-See this guide on [How Each Index Works](https://gpt-index.readthedocs.io/en/latest/guides/primer/index_guide.html) to learn more.
-You can configure the index type via the `LLAMA_INDEX_TYPE`, see [here](https://gpt-index.readthedocs.io/en/latest/reference/indices/composability_query.html#gpt_index.data_structs.struct_type.IndexStructType) for the full list of accepted index type identifiers.
+| 名前                             | 必須 | 説明                             | デフォルト         |
+|--------------------------------|----|--------------------------------|---------------|
+| `LLAMA_INDEX_TYPE`             | 任意 | インデックスタイプ（詳細については以下を参照）        | `simple_dict` |
+| `LLAMA_INDEX_JSON_PATH`        | 任意 | 保存されたIndex jsonファイルへのパス        | なし            |
+| `LLAMA_QUERY_KWARGS_JSON_PATH` | 任意 | 保存されたquery kwargs jsonファイルへのパス | なし            |
+| `LLAMA_RESPONSE_MODE`          | 任意 | クエリのレスポンスモード                   | `no_text`     | 
 
 
-Read more details on [readthedocs](https://gpt-index.readthedocs.io/en/latest/), 
-and engage with the community on [discord](https://discord.com/invite/dGcwcsnxhU).
+**異なるインデックスタイプ**
+デフォルトでは、`GPTSimpleVectorIndex`を使用して文書のチャンクをメモリ内に保存し、
+埋め込みの類似性によって上位kのノードを取得します。
+異なるインデックスタイプは、異なるデータとクエリのユースケースに最適化されています。
+詳細については、[How Each Index Works](https://gpt-index.readthedocs.io/en/latest/guides/primer/index_guide.html)を参照してください。
+インデックスタイプは`LLAMA_INDEX_TYPE`を使って設定できます。許可されるインデックスタイプ識別子の完全なリストについては、[こちら](https://gpt-index.readthedocs.io/en/latest/reference/indices/composability_query.html#gpt_index.data_structs.struct_type.IndexStructType)を参照してください。
 
-## Running Tests
-You can launch the test suite with this command:
+[readthedocs](https://gpt-index.readthedocs.io/en/latest/)で詳細を読むか、
+[discord](https://discord.com/invite/dGcwcsnxhU)でコミュニティに参加してください。
+
+## テストの実行
+このコマンドでテストスイートを起動できます：
 
 ```bash
 pytest ./tests/datastore/providers/llama/test_llama_datastore.py

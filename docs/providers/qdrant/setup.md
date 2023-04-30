@@ -1,57 +1,54 @@
 # Qdrant
 
-[Qdrant](https://qdrant.tech/) is a vector database that can store documents and vector embeddings. It can run as a self-hosted version or a managed [Qdrant Cloud](https://cloud.qdrant.io/)
-solution. The configuration is almost identical for both options, except for the API key that [Qdrant Cloud](https://cloud.qdrant.io/) provides.
+[Qdrant](https://qdrant.tech/)は、ドキュメントとベクトル埋め込みを保存できるベクトルデータベースです。自己ホスト版または管理された[Qdrant Cloud](https://cloud.qdrant.io/)ソリューションとして実行できます。設定はどちらのオプションでもほぼ同じで、[Qdrant Cloud](https://cloud.qdrant.io/)が提供するAPIキーを除いています。
 
-**Environment Variables:**
+**環境変数:**
 
-| Name                | Required | Description                                                 | Default            |
-| ------------------- | -------- | ----------------------------------------------------------- | ------------------ |
-| `DATASTORE`         | Yes      | Datastore name, set to `qdrant`                             |                    |
-| `BEARER_TOKEN`      | Yes      | Secret token                                                |                    |
-| `OPENAI_API_KEY`    | Yes      | OpenAI API key                                              |                    |
-| `QDRANT_URL`        | Yes      | Qdrant instance URL                                         | `http://localhost` |
-| `QDRANT_PORT`       | Optional | TCP port for Qdrant HTTP communication                      | `6333`             |
-| `QDRANT_GRPC_PORT`  | Optional | TCP port for Qdrant GRPC communication                      | `6334`             |
-| `QDRANT_API_KEY`    | Optional | Qdrant API key for [Qdrant Cloud](https://cloud.qdrant.io/) |                    |
-| `QDRANT_COLLECTION` | Optional | Qdrant collection name                                      | `document_chunks`  |
+| 名前                  | 必須 | 説明                                                     | デフォルト              |
+|---------------------|----|--------------------------------------------------------|--------------------|
+| `DATASTORE`         | はい | データストア名。`qdrant`に設定します。                                |                    |
+| `BEARER_TOKEN`      | はい | シークレットトークン                                             |                    |
+| `OPENAI_API_KEY`    | はい | OpenAI APIキー                                           |                    |
+| `QDRANT_URL`        | はい | QdrantインスタンスのURL                                       | `http://localhost` |
+| `QDRANT_PORT`       | 任意 | QdrantのHTTP通信用TCPポート                                   | `6333`             |
+| `QDRANT_GRPC_PORT`  | 任意 | QdrantのGRPC通信用TCPポート                                   | `6334`             |
+| `QDRANT_API_KEY`    | 任意 | [Qdrant Cloud](https://cloud.qdrant.io/)用のQdrant APIキー |                    |
+| `QDRANT_COLLECTION` | 任意 | Qdrantのコレクション名                                         | `document_chunks`  |
 
 ## Qdrant Cloud
 
-For a hosted [Qdrant Cloud](https://cloud.qdrant.io/) version, provide the Qdrant instance
-URL and the API key from the [Qdrant Cloud UI](https://cloud.qdrant.io/).
+ホストされた[Qdrant Cloud](https://cloud.qdrant.io/)版の場合は、[Qdrant Cloud UI](https://cloud.qdrant.io/)からQdrantインスタンスのURLとAPIキーを提供してください。
 
-**Example:**
+**例:**
 
 ```bash
 QDRANT_URL="https://YOUR-CLUSTER-URL.aws.cloud.qdrant.io"
 QDRANT_API_KEY="<YOUR_QDRANT_CLOUD_CLUSTER_API_KEY>"
 ```
 
-The other parameters are optional and can be changed if needed.
+他のパラメータは任意であり、必要に応じて変更できます。
 
-## Self-hosted Qdrant Instance
+## 自己ホスト版Qdrantインスタンス
 
-For a self-hosted version, use Docker containers or the official Helm chart for deployment. The only
-required parameter is the `QDRANT_URL` that points to the Qdrant server URL.
+自己ホスト版の場合、Dockerコンテナまたは公式のHelmチャートを使用してデプロイします。必要なパラメータは、QdrantサーバーのURLを指す`QDRANT_URL`だけです。
 
-**Example:**
+**例:**
 
 ```bash
 QDRANT_URL="http://YOUR_HOST.example.com:6333"
 ```
 
-The other parameters are optional and can be changed if needed.
+他のパラメータは任意であり、必要に応じて変更できます。
 
-## Running Qdrant Integration Tests
+## Qdrantインテグレーションテストの実行
 
-A suite of integration tests verifies the Qdrant integration. To run it, start a local Qdrant instance in a Docker container.
+Qdrantインテグレーションを検証するための一連のインテグレーションテストがあります。実行するには、DockerコンテナでローカルQdrantインスタンスを起動します。
 
 ```bash
 docker run -p "6333:6333" -p "6334:6334" qdrant/qdrant:v1.0.3
 ```
 
-Then, launch the test suite with this command:
+次に、以下のコマンドでテストスイートを実行します。
 
 ```bash
 pytest ./tests/datastore/providers/qdrant/test_qdrant_datastore.py

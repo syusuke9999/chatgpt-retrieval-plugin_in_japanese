@@ -1,26 +1,26 @@
 # Pinecone
 
-[Pinecone](https://www.pinecone.io) is a managed vector database built for speed, scale, and shipping to production sooner. To use Pinecone as your vector database provider, first get an API key by [signing up for an account](https://app.pinecone.io/). You can access your API key from the "API Keys" section in the sidebar of your dashboard. Pinecone also supports hybrid search and at the time of writing is the only datastore to support SPLADE sparse vectors natively.
+[Pinecone](https://www.pinecone.io)は、速度、規模、そして早期のプロダクションへの出荷を目的とした管理されたベクター型データベースです。Pineconeをベクターデータベースプロバイダとして使用するには、まず[アカウントにサインアップ](https://app.pinecone.io/)してAPIキーを取得してください。APIキーはダッシュボードのサイドバーにある「APIキー」セクションからアクセスできます。Pineconeはハイブリッド検索にも対応しており、執筆時点ではSPLADEスパースベクターをネイティブでサポートしている唯一のデータストアです。
 
-A full Jupyter notebook walkthrough for the Pinecone flavor of the retrieval plugin can be found [here](https://github.com/openai/chatgpt-retrieval-plugin/blob/main/examples/providers/pinecone/semantic-search.ipynb). There is also a [video walkthrough here](https://youtu.be/hpePPqKxNq8).
+Pineconeフレーバーの取得プラグインに関する完全なJupyterノートブックのウォークスルーは[こちら](https://github.com/openai/chatgpt-retrieval-plugin/blob/main/examples/providers/pinecone/semantic-search.ipynb)で見つけることができます。また、[ビデオウォークスルーもこちら](https://youtu.be/hpePPqKxNq8)にあります。
 
-The app will create a Pinecone index for you automatically when you run it for the first time. Just pick a name for your index and set it as an environment variable.
+アプリを初めて実行すると、Pineconeインデックスが自動的に作成されます。インデックスに名前を付けて環境変数として設定するだけです。
 
-**Environment Variables:**
+**環境変数:**
 
-| Name                   | Required | Description                                                                                                                      |
-| ---------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `DATASTORE`            | Yes      | Datastore name, set this to `pinecone`                                                                                           |
-| `BEARER_TOKEN`         | Yes      | Your secret token for authenticating requests to the API                                                                         |
-| `OPENAI_API_KEY`       | Yes      | Your OpenAI API key for generating embeddings with the `text-embedding-ada-002` model                                            |
-| `PINECONE_API_KEY`     | Yes      | Your Pinecone API key, found in the [Pinecone console](https://app.pinecone.io/)                                                 |
-| `PINECONE_ENVIRONMENT` | Yes      | Your Pinecone environment, found in the [Pinecone console](https://app.pinecone.io/), e.g. `us-west1-gcp`, `us-east-1-aws`, etc. |
-| `PINECONE_INDEX`       | Yes      | Your chosen Pinecone index name. **Note:** Index name must consist of lower case alphanumeric characters or '-'                  |
+| 名前                     | 必須 | 説明                                                                                                 |
+|------------------------|----|----------------------------------------------------------------------------------------------------|
+| `DATASTORE`            | はい | データストア名。これを`pinecone`に設定します。                                                                       |
+| `BEARER_TOKEN`         | はい | APIへのリクエストの認証に使用する秘密トークン。                                                                          |
+| `OPENAI_API_KEY`       | はい | `text-embedding-ada-002`モデルで埋め込みを生成するためのOpenAI APIキー。                                              |
+| `PINECONE_API_KEY`     | はい | [Pineconeコンソール](https://app.pinecone.io/)で見つけることができるPinecone APIキー。                                |
+| `PINECONE_ENVIRONMENT` | はい | [Pineconeコンソール](https://app.pinecone.io/)で見つけることができるPinecone環境。例：`us-west1-gcp`、`us-east-1-aws`など。 |
+| `PINECONE_INDEX`       | はい | 選択したPineconeインデックス名。**注意:** インデックス名は、英数字の小文字または'-'で構成されている必要があります。                                 |
 
-If you want to create your own index with custom configurations, you can do so using the Pinecone SDK, API, or web interface ([see docs](https://docs.pinecone.io/docs/manage-indexes)). Make sure to use a dimensionality of 1536 for the embeddings and avoid indexing on the text field in the metadata, as this will reduce the performance significantly.
+独自のインデックスをカスタム設定で作成したい場合は、Pinecone SDK、API、またはWebインターフェイスを使用して作成できます（[ドキュメント参照](https://docs.pinecone.io/docs/manage-indexes)）。埋め込みには1536の次元を使用し、メタデータのテキストフィールドのインデックス作成を避けてください。これにより、パフォーマンスが大幅に低下します。
 
 ```python
-# Creating index with Pinecone SDK - use only if you wish to create the index manually.
+# Pinecone SDKでインデックスを作成 - インデックスを手動で作成する場合にのみ使用します。
 
 import os, pinecone
 
@@ -32,4 +32,4 @@ pinecone.create_index(name=os.environ['PINECONE_INDEX'],
                       metric='cosine',
                       metadata_config={
                           "indexed": ['source', 'source_id', 'url', 'created_at', 'author', 'document_id']})
-```
+

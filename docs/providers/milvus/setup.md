@@ -1,42 +1,42 @@
 # Milvus
 
-[Milvus](https://milvus.io/) is the open-source, cloud-native vector database that scales to billions of vectors. It's the open-source version of Zilliz. It supports:
+[Milvus](https://milvus.io/) は、数十億のベクトルにスケールするオープンソースのクラウドネイティブベクターデータベースです。Zillizのオープンソース版です。これには以下の機能があります。
 
-- Various indexing algorithms and distance metrics
-- Scalar filtering and time travel searches
-- Rollback and snapshots
-- Multi-language SDKs
-- Storage and compute separation
-- Cloud scalability
-- A developer-first community with multi-language support
+- さまざまなインデックスアルゴリズムと距離指標
+- スカラーフィルタリングとタイムトラベル検索
+- ロールバックとスナップショット
+- マルチ言語SDK
+- ストレージと計算の分離
+- クラウドのスケーラビリティ
+- マルチ言語サポートを備えた開発者向けコミュニティ
 
-Visit the [Github](https://github.com/milvus-io/milvus) to learn more.
+詳細については、[Github](https://github.com/milvus-io/milvus) をご覧ください。
 
-## Deploying the Database
+## データベースのデプロイ
 
-You can deploy and manage Milvus using Docker Compose, Helm, K8's Operator, or Ansible. Follow the instructions [here](https://milvus.io/docs) to get started.
+Milvusは、Docker Compose、Helm、K8のオペレーター、またはAnsibleを使用してデプロイおよび管理できます。[こちら](https://milvus.io/docs) の手順に従って始めてください。
 
-**Environment Variables:**
+**環境変数:**
 
-| Name                       | Required | Description                                                                                                                                  |
-|----------------------------| -------- |----------------------------------------------------------------------------------------------------------------------------------------------|
-| `DATASTORE`                | Yes      | Datastore name, set to `milvus`                                                                                                              |
-| `BEARER_TOKEN`             | Yes      | Your bearer token                                                                                                                            |
-| `OPENAI_API_KEY`           | Yes      | Your OpenAI API key                                                                                                                          |
-| `MILVUS_COLLECTION`        | Optional | Milvus collection name, defaults to a random UUID                                                                                            |
-| `MILVUS_HOST`              | Optional | Milvus host IP, defaults to `localhost`                                                                                                      |
-| `MILVUS_PORT`              | Optional | Milvus port, defaults to `19530`                                                                                                             |
-| `MILVUS_USER`              | Optional | Milvus username if RBAC is enabled, defaults to `None`                                                                                       |
-| `MILVUS_PASSWORD`          | Optional | Milvus password if required, defaults to `None`                                                                                              |
-| `MILVUS_INDEX_PARAMS`      | Optional | Custom index options for the collection, defaults to `{"metric_type": "IP", "index_type": "HNSW", "params": {"M": 8, "efConstruction": 64}}` |
-| `MILVUS_SEARCH_PARAMS`     | Optional | Custom search options for the collection, defaults to `{"metric_type": "IP", "params": {"ef": 10}}`                                          |
-| `MILVUS_CONSISTENCY_LEVEL` | Optional | Data consistency level for the collection, defaults to `Bounded`                                                                             |
+| 名前                         | 必須 | 説明                                                                                                                     |
+|----------------------------|----|------------------------------------------------------------------------------------------------------------------------|
+| `DATASTORE`                | はい | データストア名を `milvus` に設定します                                                                                               |
+| `BEARER_TOKEN`             | はい | あなたのベアラートークン                                                                                                           |
+| `OPENAI_API_KEY`           | はい | あなたのOpenAI APIキー                                                                                                       |
+| `MILVUS_COLLECTION`        | 任意 | Milvusコレクション名（デフォルトではランダムなUUID）                                                                                        |
+| `MILVUS_HOST`              | 任意 | MilvusホストIP（デフォルトは `localhost`）                                                                                        |
+| `MILVUS_PORT`              | 任意 | Milvusポート（デフォルトは `19530`）                                                                                              |
+| `MILVUS_USER`              | 任意 | RBACが有効な場合のMilvusユーザー名（デフォルトは `None`）                                                                                  |
+| `MILVUS_PASSWORD`          | 任意 | 必要に応じてMilvusパスワード（デフォルトは `None`）                                                                                       |
+| `MILVUS_INDEX_PARAMS`      | 任意 | コレクションのカスタムインデックスオプション（デフォルトは `{"metric_type": "IP", "index_type": "HNSW", "params": {"M": 8, "efConstruction": 64}}`） |
+| `MILVUS_SEARCH_PARAMS`     | 任意 | コレクションのカスタム検索オプション（デフォルトは `{"metric_type": "IP", "params": {"ef": 10}}`）                                               |
+| `MILVUS_CONSISTENCY_LEVEL` | 任意 | コレクションのデータ整合性レベル（デフォルトは `Bounded`）                                                                                     |
 
-## Running Milvus Integration Tests
+## Milvus統合テストの実行
 
-A suite of integration tests is available to verify the Milvus integration. To run the tests, run the milvus docker compose found in the examples folder.
+Milvus統合を検証するための統合テストスイートが用意されています。テストを実行するには、examplesフォルダーにあるmilvus docker composeを実行してください。
 
-Then, launch the test suite with this command:
+次に、このコマンドでテストスイートを起動します。
 
 ```bash
 pytest ./tests/datastore/providers/milvus/test_milvus_datastore.py
