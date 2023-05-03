@@ -1,6 +1,7 @@
 # Pinecone
 
-[Pinecone](https://www.pinecone.io)は、速度、規模、そして早期のプロダクションへの出荷を目的とした管理されたベクター型データベースです。Pineconeをベクターデータベースプロバイダとして使用するには、まず[アカウントにサインアップ](https://app.pinecone.io/)してAPIキーを取得してください。APIキーはダッシュボードのサイドバーにある「APIキー」セクションからアクセスできます。Pineconeはハイブリッド検索にも対応しており、執筆時点ではSPLADEスパースベクターをネイティブでサポートしている唯一のデータストアです。
+[Pinecone](https://www.pinecone.io)は、速度・規模・そして早期のプロダクションへの出荷を目的としたマネージドベクターデータベースです。Pineconeをベクターデータベースプロバイダとして使用するには、まず[アカウントにサインアップ](https://app.pinecone.io/)してAPIキーを取得してください。APIキーはダッシュボードのサイドバーにある「APIキー」セクションからアクセスできます。
+Pineconeはハイブリッド検索にも対応しており、執筆時点ではSPLADEスパースベクターをネイティブでサポートしている唯一のデータストアです。
 
 Pineconeフレーバーの取得プラグインに関する完全なJupyterノートブックのウォークスルーは[こちら](https://github.com/openai/chatgpt-retrieval-plugin/blob/main/examples/providers/pinecone/semantic-search.ipynb)で見つけることができます。また、[ビデオウォークスルーもこちら](https://youtu.be/hpePPqKxNq8)にあります。
 

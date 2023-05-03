@@ -24,7 +24,7 @@
 
 
 ## Redis Datastoreの開発とテスト
-Redis Datastoreへの変更をテストするには、以下のコマンドを実行します：
+Redis Datastoreへの変更をテストするには以下のコマンドを実行します：
 
 ```bash
 # Redis stack dockerイメージを実行

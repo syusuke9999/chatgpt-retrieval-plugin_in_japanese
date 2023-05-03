@@ -27,7 +27,7 @@ Weaviateは4つの方法で実行できます。
 
   WeaviateハイブリッドSaaSはカスタムソリューションです。このオプションに興味がある場合は、[hello@weaviate.io](mailto:hello@weaviate.io)までお問い合わせください。
 
-- **セルフホスト** - Dockerコンテナを使用して
+- **セルフホスト** - Dockerコンテナを使用する
 
   DockerでWeaviateインスタンスをセットアップするには：
 
@@ -41,17 +41,17 @@ Weaviateは4つの方法で実行できます。
 
      または、Weaviateのdocker compose [設定ツール](https://weaviate.io/developers/weaviate/installation/docker-compose)を使用して独自の`docker-compose.yml`ファイルを生成できます。
 
-  4. Weaviateインスタンスを起動するには、`docker compose up -d`を実行します。
+  4. Weaviateインスタンスを起動するには`docker compose up -d`を実行します。
 
-     > シャットダウンするには、`docker compose down`を実行します。
+     > シャットダウンするには`docker compose down`を実行します。
 
-- **セルフホスト** - Kubernetesクラスターを使用して
+- **セルフホスト** - Kubernetesクラスターを使用する
 
   Kubernetesでセルフホストインスタンスを設定するには、Weaviateの[ドキュメント](https://weaviate.io/developers/weaviate/installation/kubernetes)に従ってください。
 
 ## Weaviate環境変数の設定
 
-Weaviateインスタンスに接続するためにいくつかの環境変数を設定する必要があります。
+Weaviateインスタンスに接続するために、いくつかの環境変数を設定する必要があります。
 
 **Retrieval App環境変数**
 
@@ -69,9 +69,9 @@ Weaviateインスタンスに接続するためにいくつかの環境変数を
 | `WEAVIATE_PORT`  | 任意 | Weaviateのポート番号（WCSの場合は443を使用）         | 8080               |
 | `WEAVIATE_CLASS` | 任意 | ドキュメントを保存するために選択したWeaviateクラス/コレクション名 | OpenAIDocument     |
 
-> **WCSインスタンスの場合**、`WEAVIATE_PORT`を443に設定し、`WEAVIATE_HOST`を`https://(wcs-instance-name).weaviate.network`に設定します。例：`https://my-project.weaviate.network/`。
+> **WCSインスタンスの場合**、`WEAVIATE_PORT`を443に設定し`WEAVIATE_HOST`を`https://(wcs-instance-name).weaviate.network`に設定します。例：`https://my-project.weaviate.network/`。
 
-> **セルフホストインスタンスの場合**、インスタンスが127.0.0.1:8080以外の場所にある場合は、`WEAVIATE_HOST`と`WEAVIATE_PORT`をそれに応じて設定します。例：`WEAVIATE_HOST=http://localhost/`および`WEAVIATE_PORT=4040`。
+> **セルフホストインスタンスの場合**、インスタンスが127.0.0.1:8080以外の場所にある場合は`WEAVIATE_HOST`と`WEAVIATE_PORT`をそれに応じて設定します。例：`WEAVIATE_HOST=http://localhost/　`および`WEAVIATE_PORT=4040`。
 
 **Weaviate認証環境変数**
 
@@ -80,16 +80,16 @@ WeaviateインスタンスにOIDC認証を有効にした場合（WCSインス�
 
 WeaviateインスタンスにOIDC認証を有効にした場合（WCSインスタンスでは推奨）、次の環境変数を設定します。匿名アクセスを有効にした場合は、このセクションをスキップしてください。
 
-| 名前                | 必須 | 説明                    |
-| ------------------- | ---- | ---------------------- |
+| 名前                  | 必須 | 説明               |
+|---------------------|----|------------------|
 | `WEAVIATE_USERNAME` | はい | OIDCまたはWCSのユーザー名 |
 | `WEAVIATE_PASSWORD` | はい | OIDCまたはWCSのパスワード |
-| `WEAVIATE_SCOPES`   | 任意 | スコープのスペース区切りリスト |
+| `WEAVIATE_SCOPES`   | 任意 | スコープのスペース区切りリスト  |
 Weaviateの認証については、[Weaviateの認証](https://weaviate.io/developers/weaviate/configuration/authentication#overview)と[Pythonクライアント認証](https://weaviate-python-client.readthedocs.io/en/stable/weaviate.auth.html)を参照してください。
 
 **Weaviateバッチインポート環境変数**
 
-Weaviateは、バッチ処理機構を使用して、一括で操作を行います。これにより、データのインポートや更新がより速く、効率的になります。以下のオプションの環境変数でバッチ設定を調整できます。
+Weaviateはバッチ処理機構を使用して一括で操作を行います。これによりデータのインポートや更新がより速く、効率的になります。以下のオプションの環境変数でバッチ設定を調整できます。
 
 | 名前                               | 必須 | 説明                   | デフォルト |
 |----------------------------------|----|----------------------|-------|
@@ -98,7 +98,7 @@ Weaviateは、バッチ処理機構を使用して、一括で操作を行いま
 | `WEAVIATE_BATCH_TIMEOUT_RETRIES` | 任意 | タイムアウト時の再試行回数        | 3     |
 | `WEAVIATE_BATCH_NUM_WORKERS`     | 任意 | バッチ操作を実行する並行スレッドの最大数 | 1     |
 
-> **注意:** 最適な`WEAVIATE_BATCH_SIZE`は、利用可能なリソース（RAM、CPU）に依存します。値が大きいほど、一括操作が速くなりますが、RAMとCPUの要求も高くなります。インポート処理中に失敗が発生した場合は、バッチサイズを減らしてください。
+> **注意:** 最適な`WEAVIATE_BATCH_SIZE`は利用可能なリソース（RAM、CPU）に依存します。値が大きいほど一括操作が速くなりますが、RAMとCPUの要求も高くなります。インポート処理中に失敗が発生した場合はバッチサイズを減らしてください。
 
 > `WEAVIATE_BATCH_SIZE`を`None`に設定すると、バッチサイズに制限がありません。すべての挿入または更新操作が、単一の操作でWeaviateに送信されます。これはリスクがある可能性があります。なぜなら、バッチサイズを制御できなくなるからです。
 
