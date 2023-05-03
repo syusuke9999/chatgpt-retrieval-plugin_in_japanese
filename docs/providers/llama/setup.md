@@ -35,7 +35,7 @@ ChatGPTと外部データを使ったクイックプロトタイピングに最�
 詳細については、[それぞれのインデックスの動作について](https://gpt-index.readthedocs.io/en/latest/guides/primer/index_guide.html)を参照してください。
 インデックスタイプは`LLAMA_INDEX_TYPE`を使って設定できます。許可されるインデックスタイプ識別子の完全なリストについては、[こちら](https://gpt-index.readthedocs.io/en/latest/reference/indices/composability_query.html#gpt_index.data_structs.struct_type.IndexStructType)を参照してください。
 
-[readthedocs](https://gpt-index.readthedocs.io/en/latest/)で詳細を読むか[discord](https://discord.com/invite/dGcwcsnxhU)でコミュニティに参加してください。
+[readthedocs](https://gpt-index.readthedocs.io/en/latest/)で詳細を読むか、[discord](https://discord.com/invite/dGcwcsnxhU)でコミュニティに参加してください。
 
 ## テストの実行
 このコマンドでテストスイートを起動できます：
