@@ -1,45 +1,45 @@
 # Zilliz
 
-[Zilliz](https://zilliz.com)は、ビリオンスケールに対応したマネージドクラウドネイティブベクターデータベースです。Zillizは以下のような多くの主要な機能を提供しています。
+[Zilliz](https://zilliz.com) is a managed cloud-native vector database designed for the billion scale. Zilliz offers many key features, such as:
 
-- 複数のインデックスアルゴリズム
-- 複数の距離指標
-- スカラーフィルタリング
-- タイムトラベル検索
-- ロールバックとスナップショット
-- 完全なRBAC
-- 99.9%の稼働率
-- ストレージとコンピューティングの分離
-- マルチ言語SDK
+- Multiple indexing algorithms
+- Multiple distance metrics
+- Scalar filtering
+- Time travel searches
+- Rollback and with snapshots
+- Full RBAC
+- 99.9% uptime
+- Separated storage and compute
+- Multi-language SDK's
 
-詳細については[こちら](https://zilliz.com)をご覧ください。
+Find more information [here](https://zilliz.com).
 
-**セルフホスト vs SaaS**
+**Self Hosted vs SaaS**
 
-ZillizはSaaSデータベースであり、オープンソースのソリューションであるMilvusも提供しています。どちらのオプションもビリオンスケールでの高速検索を提供しますが、Zillizはデータ管理を代行します。自動的にコンピューティングとストレージリソースをスケーリングし、データに最適なインデックスを作成します。比較は[こちら](https://zilliz.com/doc/about_zilliz_cloud)でご覧いただけます。
+Zilliz is a SaaS database, but offers an open-source solution, Milvus. Both options offer fast searches at the billion scale, but Zilliz handles data management for you. It automatically scales compute and storage resources and creates optimal indexes for your data. See the comparison [here](https://zilliz.com/doc/about_zilliz_cloud).
 
-## データベースのデプロイ
+## Deploying the Database
 
-Zilliz Cloudは簡単な手順でデプロイできます。まず、[こちら](https://cloud.zilliz.com/signup)でアカウントを作成します。アカウントが設定されたら、[こちら](https://zilliz.com/doc/quick_start)のガイドに従ってデータベースを設定し、このアプリケーションに必要なパラメータを取得します。
+Zilliz Cloud is deployable in a few simple steps. First, create an account [here](https://cloud.zilliz.com/signup). Once you have an account set up, follow the guide [here](https://zilliz.com/doc/quick_start) to set up a database and get the parameters needed for this application.
 
-環境変数:
+Environment Variables:
 
-| 名前                         | 必須 | 説明                                      |
-|----------------------------|----|-----------------------------------------|
-| `DATASTORE`                | はい | データストア名。`zilliz`に設定します。                 |
-| `BEARER_TOKEN`             | はい | あなたのシークレットトークン                          |
-| `OPENAI_API_KEY`           | はい | あなたのOpenAI APIキー                        |
-| `ZILLIZ_COLLECTION`        | 任意 | Zillizコレクション名。デフォルトではランダムなUUIDになります。    |
-| `ZILLIZ_URI`               | はい | ZillizインスタンスのURI                        |
-| `ZILLIZ_USER`              | はい | Zillizのユーザー名                            |
-| `ZILLIZ_PASSWORD`          | はい | Zillizのパスワード                            |
-| `ZILLIZ_CONSISTENCY_LEVEL` | 任意 | コレクションのデータ整合性レベル。デフォルトでは`Bounded`になります。 |
+| Name                       | Required | Description                                                      |
+|----------------------------| -------- |------------------------------------------------------------------|
+| `DATASTORE`                | Yes      | Datastore name, set to `zilliz`                                  |
+| `BEARER_TOKEN`             | Yes      | Your secret token                                                |
+| `OPENAI_API_KEY`           | Yes      | Your OpenAI API key                                              |
+| `ZILLIZ_COLLECTION`        | Optional | Zilliz collection name. Defaults to a random UUID                |
+| `ZILLIZ_URI`               | Yes      | URI for the Zilliz instance                                      |
+| `ZILLIZ_USER`              | Yes      | Zilliz username                                                  |
+| `ZILLIZ_PASSWORD`          | Yes      | Zilliz password                                                  |
+| `ZILLIZ_CONSISTENCY_LEVEL` | Optional | Data consistency level for the collection, defaults to `Bounded` |
 
-## Zillizインテグレーションテストの実行
+## Running Zilliz Integration Tests
 
-Zillizインテグレーションを検証するための統合テストスイートが用意されています。テストを実行するには、Zillizデータベースを作成し、環境変数を更新します。
+A suite of integration tests is available to verify the Zilliz integration. To run the tests, create a Zilliz database and update the environment variables.
 
-次に、以下のコマンドでテストスイートを起動します。
+Then, launch the test suite with this command:
 
 ```bash
 pytest ./tests/datastore/providers/zilliz/test_zilliz_datastore.py

@@ -1,10 +1,10 @@
-## JSONファイルを処理する
+## Process a JSON File
 
-このスクリプトは、JSON形式のドキュメントのファイル・ダンプを処理し、いくつかのメタデータとともにベクトル・データベースに保存するユーティリティです。また、オプションで言語モデルを用いてドキュメントに個人を特定できる情報（PII）があるかどうかをスクリーニングし、検知された場合はその情報をスキップすることも可能です。さらに、スクリプトは言語モデルを使用してドキュメントからメタデータを抽出することができます。個人情報（PII）検出関数は [`services/pii_detection`](../../services/pii_detection.py) に、メタデータ抽出関数は [`services/extract_metadata`](../../services/extract_metadata.py) に、それぞれ記載されていますので、ユースケースに応じてカスタマイズしてください。
+This script is a utility to process a file dump of documents in a JSON format and store them in the vector database with some metadata. It can also optionally screen the documents for personally identifiable information (PII) using a language model, and skip them if detected. Additionally, the script can extract metadata from the document using a language model. You can customize the PII detection function in [`services/pii_detection`](../../services/pii_detection.py) and the metadata extraction function in [`services/extract_metadata`](../../services/extract_metadata.py) for your use case.
 
-## 使用方法
+## Usage
 
-このスクリプトをターミナルから実行するには、次のフォルダに移動して、以下のコマンドを実行します：
+To run this script from the terminal, navigate to this folder and use the following command:
 
 ```
 python process_json.py --filepath path/to/file_dump.json --custom_metadata '{"source": "file"}' --screen_for_pii True --extract_metadata True
@@ -12,13 +12,13 @@ python process_json.py --filepath path/to/file_dump.json --custom_metadata '{"so
 
 where:
 
-- `path/to/file_dump.json` は処理するファイル・ダンプの名前または パスです。このJSONファイルの形式は、JSONオブジェクトのリストである必要があり、各オブジェクトはドキュメントを表します。JSONオブジェクトは、以下のフィールドのサブセットを持つ必要があります： `id`, `text`, `source`, `source_id`, `url`, `created_at`, そして `author` です。`text` フィールドは必須ですが、それ以外はオプションで、ドキュメントのメタデータを作成するために使用されます。`id` フィールドが指定されなかった場合、ランダムな UUID がドキュメントに対して生成されます。
-- `--custom_metadata` はドキュメントのメタデータを更新するためのキーと値のペアのJSON列で、オプションです。例えば、`{"source"： "file"}` は、各ドキュメントのメタデータに値 `file` を持つ `source` フィールドを追加します。デフォルトの値は空のJSONオブジェクト(`{}`) です。
-- `--screen_for_pii` は個人情報（PII）検出関数を使用するかどうかを示すためのオプションのブール型フラグです。`True`に設定すると、スクリプトは [`services/pii_detection`](../../services/pii_detection.py) モジュールの `screen_text_for_pii` 関数を使用して、言語モデルを使用してドキュメントのテキストに何らかの情報 (PII) があるかどうかをチェックします。PIIが検出された場合、スクリプトはWARNINGを表示し、そのドキュメントの処理をスキップします。デフォルト値は `False` です。
-- `--extract_metadata` は言語モデルを使用してドキュメントからメタデータを抽出するかどうかを指定するオプションのブール型フラグです。`True`に設定すると、スクリプトは [`services/extract_metadata`](../../services/extract_metadata.py) モジュールの `extract_metadata_from_document` 関数を使用して、ドキュメントテキストからメタデータを取り出し、それに応じて metadata オブジェクトを更新します。デフォルト値は`False`です。
+- `path/to/file_dump.json` is the name or path to the file dump to be processed. The format of this JSON file should be a list of JSON objects, where each object represents a document. The JSON object should have a subset of the following fields: `id`, `text`, `source`, `source_id`, `url`, `created_at`, and `author`. The `text` field is required, while the rest are optional and will be used to populate the metadata of the document. If the `id` field is not specified, a random UUID will be generated for the document.
+- `--custom_metadata` is an optional JSON string of key-value pairs to update the metadata of the documents. For example, `{"source": "file"}` will add a `source` field with the value `file` to the metadata of each document. The default value is an empty JSON object (`{}`).
+- `--screen_for_pii` is an optional boolean flag to indicate whether to use the PII detection function or not. If set to `True`, the script will use the `screen_text_for_pii` function from the [`services/pii_detection`](../../services/pii_detection.py) module to check if the document text contains any PII using a language model. If PII is detected, the script will print a warning and skip the document. The default value is `False`.
+- `--extract_metadata` is an optional boolean flag to indicate whether to try to extract metadata from the document using a language model. If set to `True`, the script will use the `extract_metadata_from_document` function from the [`services/extract_metadata`](../../services/extract_metadata.py) module to extract metadata from the document text and update the metadata object accordingly. The default value is`False`.
 
-このスクリプトでは、JSONファイルを辞書のリストとしてロードし、データに順番に処理を行ってドキュメントオブジェクトを作成し、それらをバッチでデータベースに挿入・更新します。また、進捗状況やエラーメッセージ、PII検出によりスキップされたアイテムの数や内容などの情報が表示されます。
+The script will load the JSON file as a list of dictionaries, iterate over the data, create document objects, and batch upsert them into the database. It will also print some progress messages and error messages if any, as well as the number and content of the skipped items due to errors or PII detection.
 
-オプションとその説明についての要約を得るには、`python process_json.py -h`を使用することができます。
+You can use `python process_json.py -h` to get a summary of the options and their descriptions.
 
-「[example.json](example.json)」のファイルを使用して、スクリプトをテストしてください。
+Test the script with the example file, [example.json](example.json).

@@ -1,9 +1,9 @@
 {
   "schema_version": "v1",
   "name_for_model": "retrieval",
-  "name_for_human": "検索プラグイン",
-  "description_for_model": "ユーザーのドキュメント（ファイル、メール等）を検索して、質問に対する回答や関連する情報を取得するためのプラグインです。ユーザーが自分の個人情報の中から見つけられそうなことを質問するときは、必ずこれを使用します。",
-  "description_for_human": "ドキュメントを検索する",
+  "name_for_human": "Retrieval Plugin",
+  "description_for_model": "Plugin for searching through the user's documents (such as files, emails, and more) to find answers to questions and retrieve relevant information. Use it whenever a user asks something that might be found in their personal information.",
+  "description_for_human": "Search through your documents.",
   "auth": {
     "type": "none"
   },
@@ -11,8 +11,8 @@
     "type": "openapi",
     "url": "http://localhost:3333/.well-known/openapi.yaml"
   },
-  "logo_url": "https://s.gravatar.com/avatar/24cc2351e7807c19e39e4cb385f7997a?s=480&r=pg&d=https%3A%2F%2Fcdn.auth0.com%2Favatars%2Fsh.png",
-  "contact_email": "hello@contact.com",
+  "logo_url": "http://localhost:3333/.well-known/logo.png",
+  "contact_email": "hello@contact.com", 
   "legal_info_url": "hello@legal.com"
 }
 

@@ -1,79 +1,90 @@
-# ChatGPT検索プラグイン
+# ChatGPT Retrieval Plugin
 
-> **[ChatGPTプラグインの待機リストへの参加はこちら！](https://openai.com/waitlist/plugins)!**
+> **Join the [ChatGPT plugins waitlist here](https://openai.com/waitlist/plugins)!**
 
-2018年から2022年までの国連年次報告にアクセスできる検索プラグインの例を[こちら](https://cdn.openai.com/chat-plugins/retrieval-gh-repo-readme/Retrieval-Final.mp4)で見つけることができます。
+Find an example video of a Retrieval Plugin that has access to the UN Annual Reports from 2018 to 2022 [here](https://cdn.openai.com/chat-plugins/retrieval-gh-repo-readme/Retrieval-Final.mp4).
 
-## はじめに
+## Introduction
 
-ChatGPT検索プラグインリポジトリでは、自然言語のクエリを使用して個人や組織のドキュメントを意味的に検索および取得する柔軟なソリューションが提供されています。リポジトリはいくつかのディレクトリに編成されています。
+The ChatGPT Retrieval Plugin repository provides a flexible solution for semantic search and retrieval of personal or organizational documents using natural language queries. The repository is organized into several directories:
 
-| ディレクトリ                        | 説明                                                                     |
-|-------------------------------|------------------------------------------------------------------------|
-| [`datastore`](/datastore)     | さまざまなベクターデータベースプロバイダを利用してドキュメントの埋め込みの保存や照会を行うためのコアロジックが含まれています。        |
-| [`docs`](/docs)               | 各ベクターデータベースプロバイダの設定と使用方法、Webhooks、および不要な依存関係の削除に関するドキュメントが含まれています。     |
-| [`examples`](/examples)       | サンプル設定、認証方法、およびプロバイダ固有のサンプルを提供します。                                     |
-| [`models`](/models)           | ドキュメントやメタデータモデルのようなプラグインで使用されるデータモデルが含まれています。                          |
-| [`scripts`](/scripts)         | 異なるデータソースからのドキュメントを処理し、アップロードするためのスクリプトを提供します。                         |
-| [`server`](/server)           | メインのFastAPIサーバーの実装を収納します。                                              |
-| [`services`](/services)       | タスクに関連するユーティリティサービスを含んでおり、チャンキング（塊への分割）メタデータ抽出およびPII検出のような機能が提供されています。 |
-| [`tests`](/tests)             | さまざまなベクターデータベースプロバイダーの統合テストが含まれています。                                   |
-| [`.well-known`](/.well-known) | プラグインの設定や APIの仕様を定義するプラグインマニフェストファイルとOpenAPIスキーマが格納されます。               |
+| Directory                     | Description                                                                                                                |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| [`datastore`](/datastore)     | Contains the core logic for storing and querying document embeddings using various vector database providers.              |
+| [`docs`](/docs)               | Includes documentation for setting up and using each vector database provider, webhooks, and removing unused dependencies. |
+| [`examples`](/examples)       | Provides example configurations, authentication methods, and provider-specific examples.                                   |
+| [`models`](/models)           | Contains the data models used by the plugin, such as document and metadata models.                                         |
+| [`scripts`](/scripts)         | Offers scripts for processing and uploading documents from different data sources.                                         |
+| [`server`](/server)           | Houses the main FastAPI server implementation.                                                                             |
+| [`services`](/services)       | Contains utility services for tasks like chunking, metadata extraction, and PII detection.                                 |
+| [`tests`](/tests)             | Includes integration tests for various vector database providers.                                                          |
+| [`.well-known`](/.well-known) | Stores the plugin manifest file and OpenAPI schema, which define the plugin configuration and API specification.           |
 
-このREADMEではChatGPT検索プラグインのセットアップ、開発、デプロイに関する詳細情報が提供されています。
+This README provides detailed information on how to set up, develop, and deploy the ChatGPT Retrieval Plugin.
 
-## 目次
+## Table of Contents
 
-- [クイックスタート](#クイックスタート)
-- [概要](#概要)
-  - [プラグイン](#プラグイン)
-  - [検索プラグイン](#検索プラグイン)
-  - [メモリ機能](#メモリ機能)
-  - [セキュリティ](#セキュリティ)
-  - [APIエンドポイント](#APIエンドポイント)
-- [開発](#開発)
-  - [セットアップ](#セットアップ)
-    - [一般的な環境変数](#一般的な環境変数)
-  - [ベクトルデータベースの選択](#ベクトルデータベースの選択)
+- [Quickstart](#quickstart)
+- [About](#about)
+  - [Plugins](#plugins)
+  - [Retrieval Plugin](#retrieval-plugin)
+  - [Memory Feature](#memory-feature)
+  - [Security](#security)
+  - [API Endpoints](#api-endpoints)
+- [Development](#development)
+  - [Setup](#setup)
+    - [General Environment Variables](#general-environment-variables)
+  - [Choosing a Vector Database](#choosing-a-vector-database)
     - [Pinecone](#pinecone)
     - [Weaviate](#weaviate)
     - [Zilliz](#zilliz)
     - [Milvus](#milvus)
     - [Qdrant](#qdrant)
     - [Redis](#redis)
-  - [APIをローカルで実行する](#APIをローカルで実行する)
-  - [ChatGPTでのlocalhostプラグインのテスト](#ChatGPTでのlocalhostプラグインのテスト)
-  - [パーソナライゼーション](#パーソナライズ)
-  - [認証方法](#認証方法)
-- [デプロイメント](#デプロイ)
-- [開発者プラグインのインストール](#開発者プラグインのインストール)
-- [Webフック](#WebHook)
-- [スクリプト](#スクリプト)
-- [制限事項](#制限事項)
-- [貢献者](#貢献者)
-- [今後の展開](#今後の方向性)
+    - [Llama Index](#llamaindex)
+    - [Chroma](#chroma)
+    - [Azure Cognitive Search](#azure-cognitive-search)
+  - [Running the API Locally](#running-the-api-locally)
+  - [Testing a Localhost Plugin in ChatGPT](#testing-a-localhost-plugin-in-chatgpt)
+  - [Personalization](#personalization)
+  - [Authentication Methods](#authentication-methods)
+- [Deployment](#deployment)
+- [Installing a Developer Plugin](#installing-a-developer-plugin)
+- [Webhooks](#webhooks)
+- [Scripts](#scripts)
+- [Limitations](#limitations)
+- [Contributors](#contributors)
+- [Future Directions](#future-directions)
 
-## クイックスタート
+## Quickstart
 
-ChatGPT検索プラグインを素早くセットアップして実行するには、以下の手順を実行します。
+Follow these steps to quickly set up and run the ChatGPT Retrieval Plugin:
 
-1. まだインストールしていない場合は、Python 3.10をインストールします。
-2. リポジトリをクローンします: `git clone https://github.com/openai/chatgpt-retrieval-plugin.git`
-3. クローンされたリポジトリのディレクトリに移動します: `cd/path/to/chatgpt-retrieval-plugin`
-4. poetryをインストールします: `pip install poetry`
-5. Python 3.10を使用した新しい仮想環境を作成します: `poetry env use python3.10`
-6. 仮想環境をアクティブ化します:`poetry shell`
-7. アプリの依存関係をインストールします:`poetry install`
-8. [bearerトークン](#一般的な環境変数)を作成します
-9. 必要な環境変数を設定します:
+1. Install Python 3.10, if not already installed.
+2. Clone the repository: `git clone https://github.com/openai/chatgpt-retrieval-plugin.git`
+3. Navigate to the cloned repository directory: `cd /path/to/chatgpt-retrieval-plugin`
+4. Install poetry: `pip install poetry`
+5. Create a new virtual environment with Python 3.10: `poetry env use python3.10`
+6. Activate the virtual environment: `poetry shell`
+7. Install app dependencies: `poetry install`
+8. Create a [bearer token](#general-environment-variables)
+9. Set the required environment variables:
 
-```
+   ```
    export DATASTORE=<your_datastore>
    export BEARER_TOKEN=<your_bearer_token>
    export OPENAI_API_KEY=<your_openai_api_key>
 
-   # 選択したベクトルDBの環境変数を追加します.
-   # これらの一部はオプションです。詳細については/docs/providersのプロバイダのセットアップドキュメントを参照してください.
+   # Optional environment variables used when running Azure OpenAI
+   export OPENAI_API_BASE=https://<AzureOpenAIName>.openai.azure.com/
+   export OPENAI_API_TYPE=azure
+   export OPENAI_EMBEDDINGMODEL_DEPLOYMENTID=<Name of text-embedding-ada-002 model deployment>
+   export OPENAI_METADATA_EXTRACTIONMODEL_DEPLOYMENTID=<Name of deployment of model for metatdata>
+   export OPENAI_COMPLETIONMODEL_DEPLOYMENTID=<Name of general model deployment used for completion>
+   export OPENAI_EMBEDDING_BATCH_SIZE=<Batch size of embedding, for AzureOAI, this value need to be set as 1>
+
+   # Add the environment variables for your chosen vector DB.
+   # Some of these are optional; read the provider's setup docs in /docs/providers for more information.
 
    # Pinecone
    export PINECONE_API_KEY=<your_pinecone_api_key>
@@ -81,16 +92,9 @@ ChatGPT検索プラグインを素早くセットアップして実行するに�
    export PINECONE_INDEX=<your_pinecone_index>
 
    # Weaviate
-   export WEAVIATE_HOST=<your_weaviate_instance_url>
-   export WEAVIATE_PORT=<your_weaviate_port_443_for_WCS>
+   export WEAVIATE_URL=<your_weaviate_instance_url>
+   export WEAVIATE_API_KEY=<your_api_key_for_WCS>
    export WEAVIATE_CLASS=<your_optional_weaviate_class>
-   export WEAVIATE_USERNAME=<your_weaviate_WCS_username>
-   export WEAVIATE_PASSWORD=<your_weaviate_WCS_password>
-   export WEAVIATE_SCOPES=<your_optional_weaviate_scopes>
-   export WEAVIATE_BATCH_SIZE=<optional_weaviate_batch_size>
-   export WEAVIATE_BATCH_DYNAMIC=<optional_weaviate_batch_dynamic>
-   export WEAVIATE_BATCH_TIMEOUT_RETRIES=<optional_weaviate_batch_timeout_retries>
-   export WEAVIATE_BATCH_NUM_WORKERS=<optional_weaviate_batch_num_workers>
 
    # Zilliz
    export ZILLIZ_COLLECTION=<your_zilliz_collection>
@@ -106,345 +110,381 @@ ChatGPT検索プラグインを素早くセットアップして実行するに�
    export MILVUS_PASSWORD=<your_milvus_password>
 
    # Qdrant
-   export QDRANT_URL=<あなたのQdrant URL>
-   export QDRANT_PORT=<あなたのQdrantポート番号>
-   export QDRANT_GRPC_PORT=<あなたのQdrant GRPCポート番号>
-   export QDRANT_API_KEY=<あなたのQdrant APIキー>
-   export QDRANT_COLLECTION=<あなたのQdrantコレクション名>
+   export QDRANT_URL=<your_qdrant_url>
+   export QDRANT_PORT=<your_qdrant_port>
+   export QDRANT_GRPC_PORT=<your_qdrant_grpc_port>
+   export QDRANT_API_KEY=<your_qdrant_api_key>
+   export QDRANT_COLLECTION=<your_qdrant_collection>
 
    # Redis
-   export REDIS_HOST=<あなたのRedisホスト>
-   export REDIS_PORT=<あなたのRedisポート番号>
-   export REDIS_PASSWORD=<あなたのRedisパスワード>
-   export REDIS_INDEX_NAME=<あなたのRedisインデックス名>
-   export REDIS_DOC_PREFIX=<あなたのRedisドキュメントプレフィックス>
-   export REDIS_DISTANCE_METRIC=<あなたのRedis距離計量>
-   export REDIS_INDEX_TYPE=<あなたのRedisインデックスタイプ>
-```
+   export REDIS_HOST=<your_redis_host>
+   export REDIS_PORT=<your_redis_port>
+   export REDIS_PASSWORD=<your_redis_password>
+   export REDIS_INDEX_NAME=<your_redis_index_name>
+   export REDIS_DOC_PREFIX=<your_redis_doc_prefix>
+   export REDIS_DISTANCE_METRIC=<your_redis_distance_metric>
+   export REDIS_INDEX_TYPE=<your_redis_index_type>
 
-10. APIをローカルで実行します:`poetry run start`
-11. `http://0.0.0.0:8000/docs`でAPIドキュメントにアクセスし、APIエンドポイントのテスト（bearerトークンを追加することを確認してください）。
+   # Llama
+   export LLAMA_INDEX_TYPE=<gpt_vector_index_type>
+   export LLAMA_INDEX_JSON_PATH=<path_to_saved_index_json_file>
+   export LLAMA_QUERY_KWARGS_JSON_PATH=<path_to_saved_query_kwargs_json_file>
+   export LLAMA_RESPONSE_MODE=<response_mode_for_query>
 
-### ChatGPTでのテスト
+   # Chroma
+   export CHROMA_COLLECTION=<your_chroma_collection>
+   export CHROMA_IN_MEMORY=<true_or_false>
+   export CHROMA_PERSISTENCE_DIR=<your_chroma_persistence_directory>
+   export CHROMA_HOST=<your_chroma_host>
+   export CHROMA_PORT=<your_chroma_port>
 
-ローカルにホストされたプラグインをChatGPTでテストするには、以下の手順を実行します。
+   # Azure Cognitive Search
+   export AZURESEARCH_SERVICE=<your_search_service_name>
+   export AZURESEARCH_INDEX=<your_search_index_name>
+   export AZURESEARCH_API_KEY=<your_api_key> (optional, uses key-free managed identity if not set)
+   ```
 
-1. APIをlocalhostで実行します:`poetry run dev`
-2. READMEの[ChatGPTでのlocalhostプラグインのテスト](#ChatGPTでのlocalhostプラグインのテスト)セクションの手順に従ってください。
+10. Run the API locally: `poetry run start`
+11. Access the API documentation at `http://0.0.0.0:8000/docs` and test the API endpoints (make sure to add your bearer token).
 
-ChatGPT検索プラグインのセットアップ、開発、およびデプロイに関する詳細情報については、以下の開発セクションを参照してください。
+### Testing in ChatGPT
 
-## 概要
+To test a locally hosted plugin in ChatGPT, follow these steps:
 
-### プラグイン
+1. Run the API on localhost: `poetry run dev`
+2. Follow the instructions in the [Testing a Localhost Plugin in ChatGPT](#testing-a-localhost-plugin-in-chatgpt) section of the README.
 
-プラグインはChatGPTのような言語モデル向けに設計されたチャット拡張機能であり、ユーザーのリクエストに応じて最新の情報にアクセスしたり、計算を実行したり、サードパーティ製サービスと連携したりします。プラグインにより、様々なユースケースを実現し、言語モデルの機能を向上させることができます。
+For more detailed information on setting up, developing, and deploying the ChatGPT Retrieval Plugin, refer to the full Development section below.
 
-開発者はAPIを自分のウェブサイトで公開し、APIを説明する標準化されたマニフェストファイルを提供することで、プラグインを作成できます。ChatGPTはこれらのファイルを利用し、AIモデルが開発者が定義したAPIにコールを行うことができます。
+## About
 
-プラグインは以下の構成要素で構成されています。
+### Plugins
 
-- API
-- APIスキーマ（OpenAPI JSONまたはYAML形式）
-- プラグインに関連するメタデータを定義するマニフェスト（JSONファイル）
+Plugins are chat extensions designed specifically for language models like ChatGPT, enabling them to access up-to-date information, run computations, or interact with third-party services in response to a user's request. They unlock a wide range of potential use cases and enhance the capabilities of language models.
 
-検索プラグインにはすでにこれらの構成要素が含まれています。Chatプラグインに関するブログ記事は[こちら](https://openai.com/blog/chatgpt-plugins)から、ドキュメントは[こちら](https://platform.openai.com/docs/plugins/introduction)からご覧いただけます。
+Developers can create a plugin by exposing an API through their website and providing a standardized manifest file that describes the API. ChatGPT consumes these files and allows the AI models to make calls to the API defined by the developer.
 
-### 検索プラグイン
+A plugin consists of:
 
-これは、個人や組織のドキュメントを意味的に検索および取得するためのChatGPT用プラグインです。ファイル、ノート、電子メールなどのデータソースから、質問や要求を自然言語で表現することによって、最も関連性の高いドキュメントのスニペットを取得できます。企業は、このプラグインを使用して、従業員向けに社内ドキュメントをChatGPTで利用できるようにすることができます。
+- An API
+- An API schema (OpenAPI JSON or YAML format)
+- A manifest (JSON file) that defines relevant metadata for the plugin
 
-プラグインでは、OpenAIの`text-embedding-ada-002`埋め込みモデルを使用してドキュメントのチャンクの埋め込みを生成し、それらをバックエンドのベクトルデータベースに保存して検索します。オープンソースで自己ホスト型の解決策として、開発者は独自の検索プラグインをデプロイし、ChatGPTに登録することができます。また、検索プラグインは複数のベクトルデータベースプロバイダをサポートしており、開発者はリストから好みのものを選択できます。
+The Retrieval Plugin already contains all of these components. Read the Chat Plugins blogpost [here](https://openai.com/blog/chatgpt-plugins), and find the docs [here](https://platform.openai.com/docs/plugins/introduction).
 
-FastAPIサーバーは、ドキュメントをupsert（アップサート）、クエリ、削除するためのプラグインのエンドポイントを公開します。ユーザーは、ソース、日付、著者などのメタデータフィルタを使用して検索結果を絞り込むことができます。プラグインはDockerコンテナをサポートする任意のクラウドプラットフォーム（Fly.io、Heroku、Azure Container Appsなど）でホストできます。upsertエンドポイントとdeleteエンドポイントにインバウンドWebフックを使用して、プラグインはさまざまなデータソースからのドキュメントを継続的に処理して保存し、ベクトルデータベースを最新の状態に保つことができます。[Zapier](https://zapier.com)や[Make](https://www.make.com)などのツールを使って、イベントやスケジュールに基づいてWebフックを設定できます。
+### Retrieval Plugin
 
-### メモリ機能
+This is a plugin for ChatGPT that enables semantic search and retrieval of personal or organizational documents. It allows users to obtain the most relevant document snippets from their data sources, such as files, notes, or emails, by asking questions or expressing needs in natural language. Enterprises can make their internal documents available to their employees through ChatGPT using this plugin.
 
-検索プラグインの目立つ機能のひとつは、ChatGPTにメモリを提供する能力です。ユーザーが促す場合に限り、プラグインのupsertエンドポイントを利用して、ChatGPTは会話のスニペットをベクトルデータベースに保存し、後で参照することができます。この機能により、ChatGPTは以前の会話から情報を思い出したり取得したりすることができ、よりコンテキストに対する認識があるチャット体験が実現します。検索プラグインでメモリを構成する方法については、[こちら](/examples/memory)を参照してください。
+The plugin uses OpenAI's `text-embedding-ada-002` embeddings model to generate embeddings of document chunks, and then stores and queries them using a vector database on the backend. As an open-source and self-hosted solution, developers can deploy their own Retrieval Plugin and register it with ChatGPT. The Retrieval Plugin supports several vector database providers, allowing developers to choose their preferred one from a list.
 
-### セキュリティ
+A FastAPI server exposes the plugin's endpoints for upserting, querying, and deleting documents. Users can refine their search results by using metadata filters by source, date, author, or other criteria. The plugin can be hosted on any cloud platform that supports Docker containers, such as Fly.io, Heroku or Azure Container Apps. To keep the vector database updated with the latest documents, the plugin can process and store documents from various data sources continuously, using incoming webhooks to the upsert and delete endpoints. Tools like [Zapier](https://zapier.com) or [Make](https://www.make.com) can help configure the webhooks based on events or schedules.
 
-検索プラグインは、ChatGPTがベクトルデータベースのコンテンツを検索し、その結果をChatGPTセッションに追加することができます。これにより外部の影響はなく、主なリスクの考慮点はデータの承認とプライバシーです。開発者は自分たちが承認を得ており、ユーザーのChatGPTセッションに表示されても問題ないコンテンツを検索プラグインに追加すべきです。プラグインを保護するためにさまざまな認証方法から選択できます（詳細については[こちら](#認証方法)を参照してください）。
+### Memory Feature
 
-### APIエンドポイント
+A notable feature of the Retrieval Plugin is its capacity to provide ChatGPT with memory. By utilizing the plugin's upsert endpoint, ChatGPT can save snippets from the conversation to the vector database for later reference (only when prompted to do so by the user). This functionality contributes to a more context-aware chat experience by allowing ChatGPT to remember and retrieve information from previous conversations. Learn how to configure the Retrieval Plugin with memory [here](/examples/memory).
 
-検索プラグインは、PythonでAPIを構築するためのWebフレームワークであるFastAPIを使用して構築されています。FastAPIは、APIエンドポイントの開発、検証、ドキュメント作成を容易にします。FastAPIのドキュメントは[こちら](https://fastapi.tiangolo.com/)で確認できます。
+### Security
 
-FastAPIの利点の1つはSwagger UIを使用したインタラクティブなAPIドキュメントの自動生成です。APIがローカルで実行されている場合、`<local_host_url（例：http://0.0.0.0:8000）>/docs`のSwagger UIを使用してAPIエンドポイントと対話したり、機能をテストしたり、リクエストとレスポンスモデルを確認できます。
+The Retrieval Plugin allows ChatGPT to search a vector database of content, and then add the best results into the ChatGPT session. This means it doesn’t have any external effects, and the main risk consideration is data authorization and privacy. Developers should only add content into their Retrieval Plugin that they have authorization for and that they are fine with appearing in users’ ChatGPT sessions. You can choose from a number of different authentication methods to secure the plugin (more information [here](#authentication-methods)).
 
-プラグインはベクトルデータベースからドキュメントを追加・照会・削除する以下のエンドポイントを公開しています。すべてのリクエストとレスポンスはJSON形式で、承認ヘッダとして有効なベアラートークンが必要です。
+### API Endpoints
 
-- `/upsert`：このエンドポイントを使用して1つ以上のドキュメントをアップロードし、テキストとメタデータをベクトルデータベースに保存できます。ドキュメントは約200トークンのチャンクに分割され、一意のIDが付与されます。エンドポイントは、リクエスト本文内のドキュメントのリスト（`text`フィールドを伴う）を受け付けるほか、`id`および`metadata`フィールドをオプションで受け付けます。`metadata`フィールドには、`source`、`source_id`、`url`、`created_at`、そして`author`を含むオプションのサブフィールドがあります。エンドポイントは、挿入されたドキュメントのIDのリストを返します（IDが最初に提供されなかった場合には生成されます）。
+The Retrieval Plugin is built using FastAPI, a web framework for building APIs with Python. FastAPI allows for easy development, validation, and documentation of API endpoints. Find the FastAPI documentation [here](https://fastapi.tiangolo.com/).
 
-- `/upsert-file`：このエンドポイントを使用して、1つのファイル（PDF、TXT、DOCX、PPTX、またはMD）をアップロードし、そのテキストとメタデータをベクトルデータベースに保存できます。ファイルはプレーンテキストに変換され、約200トークンのチャンクに分割され、それぞれに一意のIDが付与されます。エンドポイントは挿入されたファイルの生成されたIDを含むリストを返します。
+One of the benefits of using FastAPI is the automatic generation of interactive API documentation with Swagger UI. When the API is running locally, Swagger UI at `<local_host_url i.e. http://0.0.0.0:8000>/docs` can be used to interact with the API endpoints, test their functionality, and view the expected request and response models.
 
-- `/query`：このエンドポイントを使用して、1つ以上の自然言語クエリとオプションのメタデータフィルタを使用して、ベクトルデータベースを照会できます。エンドポイントは、リクエスト本文内のクエリのリスト（`query`フィールドを伴う）を受け付けるほか、`filter`および`top_k`フィールドをオプションで受け付けます。`filter`フィールドは、`source`、`source_id`、`document_id`、`url`、`created_at`、そして`author`を含むサブフィールドのサブセットを含む必要があります。`top_k`フィールドは、各クエリに対して何件の結果を返すかを指定し、デフォルト値は3です。エンドポイントは、各オブジェクトのリストを返し、それぞれが与えられたクエリに対する最も関連性の高いドキュメントのチャンク、テキスト、メタデータ、類似性スコアのリストを含みます。
+The plugin exposes the following endpoints for upserting, querying, and deleting documents from the vector database. All requests and responses are in JSON format, and require a valid bearer token as an authorization header.
 
-- `/delete`：このエンドポイントを使用して、ID、メタデータフィルタ、またはdelete_allフラグを使用して、1つ以上のドキュメントをベクトルデータベースから削除できます。エンドポイントは、リクエスト本文内で以下のパラメータの最低1つを受け付けます。`ids`、`filter`、または`delete_all`です。`ids`パラメータは、削除するドキュメントIDのリストで、これらのIDに関連するすべてのドキュメントのチャンクが削除されます。`filter`パラメータは、`source`、`source_id`、`document_id`、`url`、`created_at`、そして`author`を含むサブフィールドのサブセットを含む必要があります。`delete_all`パラメータは、ベクトルデータベースからすべてのドキュメントを削除するかどうかを示す真偽値です。エンドポイントは、削除が成功したかどうかを示す真偽値を返します。
+- `/upsert`: This endpoint allows uploading one or more documents and storing their text and metadata in the vector database. The documents are split into chunks of around 200 tokens, each with a unique ID. The endpoint expects a list of documents in the request body, each with a `text` field, and optional `id` and `metadata` fields. The `metadata` field can contain the following optional subfields: `source`, `source_id`, `url`, `created_at`, and `author`. The endpoint returns a list of the IDs of the inserted documents (an ID is generated if not initially provided).
 
-詳細な仕様とリクエスト/レスポンスモデルの例はアプリをローカルで実行してから http://0.0.0.0:8000/openapi.json にアクセスするかOpenAPIスキーマ[こちら](/.well-known/openapi.yaml)に記載されています。ただしOpenAPIスキーマには`/query`エンドポイントのみが含まれています。これは、ChatGPTがアクセスする必要がある唯一の機能だからです。この方法ではChatGPTは自然言語のクエリやニーズに基づいて関連するドキュメントを取得するだけでなく、プラグインを使用して会話からのスニペットをベクトルデータベースに保存することで後で情報を覚えておく機能も追加できます。`/upsert`エンドポイントへのアクセスを許可するマニフェストとOpenAPIスキーマの例は[こちら](/examples/memory)で確認できます。
+- `/upsert-file`: This endpoint allows uploading a single file (PDF, TXT, DOCX, PPTX, or MD) and storing its text and metadata in the vector database. The file is converted to plain text and split into chunks of around 200 tokens, each with a unique ID. The endpoint returns a list containing the generated id of the inserted file.
 
-カスタムメタデータフィールドを追加するには、`DocumentMetadata`および`DocumentMetadataFilter`データモデル[model/models.py](/models/models.py)を編集し、OpenAPIスキーマ[here](/.well-known/openapi.yaml)を更新します。アプリをローカルで実行し、http://0.0.0.0:8000/sub/openapi.jsonで見つかったJSONをコピーして、[Swagger Editor](https://editor.swagger.io/)でYAML形式に変換するだけです。あるいは、`openapi.yaml`ファイルを`openapi.json`ファイルに置き換えることもできます。
+- `/query`: This endpoint allows querying the vector database using one or more natural language queries and optional metadata filters. The endpoint expects a list of queries in the request body, each with a `query` and optional `filter` and `top_k` fields. The `filter` field should contain a subset of the following subfields: `source`, `source_id`, `document_id`, `url`, `created_at`, and `author`. The `top_k` field specifies how many results to return for a given query, and the default value is 3. The endpoint returns a list of objects that each contain a list of the most relevant document chunks for the given query, along with their text, metadata and similarity scores.
 
-## 開発
+- `/delete`: This endpoint allows deleting one or more documents from the vector database using their IDs, a metadata filter, or a delete_all flag. The endpoint expects at least one of the following parameters in the request body: `ids`, `filter`, or `delete_all`. The `ids` parameter should be a list of document IDs to delete; all document chunks for the document with these IDS will be deleted. The `filter` parameter should contain a subset of the following subfields: `source`, `source_id`, `document_id`, `url`, `created_at`, and `author`. The `delete_all` parameter should be a boolean indicating whether to delete all documents from the vector database. The endpoint returns a boolean indicating whether the deletion was successful.
 
-### セットアップ
+The detailed specifications and examples of the request and response models can be found by running the app locally and navigating to http://0.0.0.0:8000/openapi.json, or in the OpenAPI schema [here](/.well-known/openapi.yaml). Note that the OpenAPI schema only contains the `/query` endpoint, because that is the only function that ChatGPT needs to access. This way, ChatGPT can use the plugin only to retrieve relevant documents based on natural language queries or needs. However, if developers want to also give ChatGPT the ability to remember things for later, they can use the `/upsert` endpoint to save snippets from the conversation to the vector database. An example of a manifest and OpenAPI schema that gives ChatGPT access to the `/upsert` endpoint can be found [here](/examples/memory).
 
-このアプリはPython 3.10と[poetry](https://python-poetry.org/)を使い、依存関係の管理を行っています。
+To include custom metadata fields, edit the `DocumentMetadata` and `DocumentMetadataFilter` data models [here](/models/models.py), and update the OpenAPI schema [here](/.well-known/openapi.yaml). You can update this easily by running the app locally, copying the JSON found at http://0.0.0.0:8000/sub/openapi.json, and converting it to YAML format with [Swagger Editor](https://editor.swagger.io/). Alternatively, you can replace the `openapi.yaml` file with an `openapi.json` file.
 
-お使いのマシンにPython 3.10がインストールされていない場合は、公式の[Pythonのウェブサイト](https://www.python.org/downloads/)からインストールするか、または`brew`や`apt`などのパッケージ管理システムでインストールしてください。
+## Development
 
-GitHubからリポジトリをクローンします:
+### Setup
+
+This app uses Python 3.10, and [poetry](https://python-poetry.org/) for dependency management.
+
+Install Python 3.10 on your machine if it isn't already installed. It can be downloaded from the official [Python website](https://www.python.org/downloads/) or with a package manager like `brew` or `apt`, depending on your system.
+
+Clone the repository from GitHub:
 
 ```
 git clone https://github.com/openai/chatgpt-retrieval-plugin.git
 ```
 
-クローンしたリポジトリのディレクトリに移動します:
+Navigate to the cloned repository directory:
 
 ```
 cd /path/to/chatgpt-retrieval-plugin
 ```
 
-poetryをインストール:
+Install poetry:
 
 ```
 pip install poetry
 ```
 
-Python 3.10を使用した新しい仮想環境を作成します:
+Create a new virtual environment that uses Python 3.10:
 
 ```
 poetry env use python3.10
 poetry shell
 ```
 
-poetryを使ってアプリの依存関係をインストールします:
+Install app dependencies using poetry:
 
 ```
 poetry install
 ```
 
-**注意:** `pyproject.toml`に依存関係を追加する場合は、`poetry lock`と`poetry install`を実行してください。
+**Note:** If adding dependencies in the `pyproject.toml`, make sure to run `poetry lock` and `poetry install`.
 
-#### 一般的な環境変数
+#### General Environment Variables
 
-APIは、以下の環境変数が必要です:
+The API requires the following environment variables to work:
 
-| 名前               | 必須 | 説明                                                                                                                         |
-|------------------|----|----------------------------------------------------------------------------------------------------------------------------|
-| `DATASTORE`      | はい | これは、埋め込みデータの保存とクエリに使用するベクターデータベースプロバイダを指定するものです。`pinecone`、`weaviate`、`zilliz`、`milvus`、`qdrant`、`redis`から選ぶことができます。       |
-| `BEARER_TOKEN`   | はい | これは、APIへのリクエストを認証するために必要なシークレットトークンです。[jwt.io](https://jwt.io/)など、お好みのツールや方法で生成できます。                                       |
-| `OPENAI_API_KEY` | はい | これは、`text-embedding-ada-002`モデルを使用して埋め込みを生成するために必要なOpenAI APIキーです。[OpenAI](https://openai.com/)のアカウントを作成することでAPIキーを取得できます。 |
+| Name             | Required | Description                                                                                                                                                                                |
+| ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `DATASTORE`      | Yes      | This specifies the vector database provider you want to use to store and query embeddings. You can choose from `chroma`, `pinecone`, `weaviate`, `zilliz`, `milvus`, `qdrant`, `redis`, `azuresearch`. |
+| `BEARER_TOKEN`   | Yes      | This is a secret token that you need to authenticate your requests to the API. You can generate one using any tool or method you prefer, such as [jwt.io](https://jwt.io/).                |
+| `OPENAI_API_KEY` | Yes      | This is your OpenAI API key that you need to generate embeddings using the `text-embedding-ada-002` model. You can get an API key by creating an account on [OpenAI](https://openai.com/). |
 
-### ベクトルデータベースの選択
+### Using the plugin with Azure OpenAI
 
-プラグインはいくつかのベクターデータベースプロバイダをサポートしており、それぞれ異なる機能、パフォーマンス、価格があります。選択するものによって、異なるDockerfileを使用したり、異なる環境変数を設定したりする必要があります。以下のセクションでは各ベクターデータベースプロバイダについて簡単に説明しています。
+The Azure Open AI uses URLs that are specific to your resource and references models not by model name but by the deployment id. As a result, you need to set additional environment variables for this case.
 
-各ベクターデータベースプロバイダの設定方法や使用方法については、`/docs/providers/<datastore_name>/setup.md`ファイル（[こちらのフォルダ](/docs/providers)）にあるドキュメントを参照してください。
+In addition to the OPENAI_API_BASE (your specific URL) and OPENAI_API_TYPE (azure), you should also set OPENAI_EMBEDDINGMODEL_DEPLOYMENTID which specifies the model to use for getting embeddings on upsert and query. For this, we recommend deploying text-embedding-ada-002 model and using the deployment name here.
+
+If you wish to use the data preparation scripts, you will also need to set OPENAI_METADATA_EXTRACTIONMODEL_DEPLOYMENTID, used for metadata extraction and
+OPENAI_COMPLETIONMODEL_DEPLOYMENTID, used for PII handling.
+
+### Choosing a Vector Database
+
+The plugin supports several vector database providers, each with different features, performance, and pricing. Depending on which one you choose, you will need to use a different Dockerfile and set different environment variables. The following sections provide brief introductions to each vector database provider.
+
+For more detailed instructions on setting up and using each vector database provider, please refer to the respective documentation in the `/docs/providers/<datastore_name>/setup.md` file ([folders here](/docs/providers)).
 
 #### Pinecone
 
-[Pinecone](https://www.pinecone.io)は、高速性、スケーラビリティ、迅速なプロダクションへの展開を目的としたマネージド型のベクターデータベースです。ハイブリッド検索をサポートし、現在SPLADE疎ベクトルのネイティブサポートを提供している唯一のデータストアです。詳しい設定方法は、[`/docs/providers/pinecone/setup.md`](/docs/providers/pinecone/setup.md)を参照してください。
+[Pinecone](https://www.pinecone.io) is a managed vector database designed for speed, scale, and rapid deployment to production. It supports hybrid search and is currently the only datastore to natively support SPLADE sparse vectors. For detailed setup instructions, refer to [`/docs/providers/pinecone/setup.md`](/docs/providers/pinecone/setup.md).
 
 #### Weaviate
 
-[Weaviate](https://weaviate.io/)は、何十億ものデータオブジェクトにシームレスにスケーリングできるオープンソースのベクター検索エンジンです。ハイブリッド検索が最初からサポートされており、効率的なキーワード検索が必要なユーザーに適しています。Weaviateは、自己ホスト型またはマネージド型で提供されており、デプロイメントの柔軟性があります。詳しい設定方法は、[`/docs/providers/weaviate/setup.md`](/docs/providers/weaviate/setup.md)を参照してください。
+[Weaviate](https://weaviate.io/) is an open-source vector search engine built to scale seamlessly into billions of data objects. It supports hybrid search out-of-the-box, making it suitable for users who require efficient keyword searches. Weaviate can be self-hosted or managed, offering flexibility in deployment. For detailed setup instructions, refer to [`/docs/providers/weaviate/setup.md`](/docs/providers/weaviate/setup.md).
 
 #### Zilliz
 
-[Zilliz](https://zilliz.com)は、何十億規模のデータ向けに設計されたマネージド型のクラウドネイティブベクターデータベースです。多様なインデックスアルゴリズム、距離指標、スカラーのフィルタリング、タイムトラベル検索、スナップショットによるロールバック、完全なRBAC、99.9%の稼働率、別個のストレージとコンピューティング、マルチ言語SDKを含む幅広い機能を提供しています。詳しい設定方法は、[`/docs/providers/zilliz/setup.md`](/docs/providers/zilliz/setup.md)を参照してください。
+[Zilliz](https://zilliz.com) is a managed cloud-native vector database designed for billion-scale data. It offers a wide range of features, including multiple indexing algorithms, distance metrics, scalar filtering, time travel searches, rollback with snapshots, full RBAC, 99.9% uptime, separated storage and compute, and multi-language SDKs. For detailed setup instructions, refer to [`/docs/providers/zilliz/setup.md`](/docs/providers/zilliz/setup.md).
 
 #### Milvus
 
-[Milvus](https://milvus.io/)は、何十億ものベクターにスケーリング可能なオープンソースのクラウドネイティブベクターデータベースです。Zillizのオープンソース版であり、さまざまなインデックスアルゴリズム、距離指標、スカラーのフィルタリング、タイムトラベル検索、スナップショットによるロールバック、マルチ言語SDK、ストレージとコンピューティングの分離、クラウドのスケーラビリティなど、多くの機能を共有しています。詳しい設定方法は、[`/docs/providers/milvus/setup.md`](/docs/providers/milvus/setup.md)を参照してください。
+[Milvus](https://milvus.io/) is an open-source, cloud-native vector database that scales to billions of vectors. It is the open-source version of Zilliz and shares many of its features, such as various indexing algorithms, distance metrics, scalar filtering, time travel searches, rollback with snapshots, multi-language SDKs, storage and compute separation, and cloud scalability. For detailed setup instructions, refer to [`/docs/providers/milvus/setup.md`](/docs/providers/milvus/setup.md).
 
 #### Qdrant
 
-[Qdrant](https://qdrant.tech/)は、ドキュメントとベクター埋め込みを保存できるベクターデータベースです。オープンソースの自己ホスト型デプロイメントとマネージド型の[Qdrant Cloud](https://cloud.qdrant.io/)デプロイメントの両方を提供しており、さまざまな要件を持つユーザーに柔軟性を提供します。詳しい設定方法は、[`/docs/providers/qdrant/setup.md`](/docs/providers/qdrant/setup.md)を参照してください。
+[Qdrant](https://qdrant.tech/) is a vector database capable of storing documents and vector embeddings. It offers both self-hosted and managed [Qdrant Cloud](https://cloud.qdrant.io/) deployment options, providing flexibility for users with different requirements. For detailed setup instructions, refer to [`/docs/providers/qdrant/setup.md`](/docs/providers/qdrant/setup.md).
 
 #### Redis
 
-[Redis](https://redis.com/solutions/use-cases/vector-database/)は、日常的なアプリケーションやAI/MLワークロードを含むさまざまなユースケースに適したリアルタイムデータプラットフォームです。[Redis Stack docker コンテナ](/examples/docker/redis/docker-compose.yml)を使用してRedisデータベースを作成することで、低遅延のベクターエンジンとして使用できます。ホスト/管理されたソリューションとして、[Redis Cloud](https://app.redislabs.com/#/)が利用可能です。詳しいセットアップ手順については、[`/docs/providers/redis/setup.md`](/docs/providers/redis/setup.md)を参照してください。
+[Redis](https://redis.com/solutions/use-cases/vector-database/) is a real-time data platform suitable for a variety of use cases, including everyday applications and AI/ML workloads. It can be used as a low-latency vector engine by creating a Redis database with the [Redis Stack docker container](/examples/docker/redis/docker-compose.yml). For a hosted/managed solution, [Redis Cloud](https://app.redislabs.com/#/) is available. For detailed setup instructions, refer to [`/docs/providers/redis/setup.md`](/docs/providers/redis/setup.md).
 
 #### LlamaIndex
 
-[LlamaIndex](https://github.com/jerryjliu/llama_index)は、LLM（Likelihood Learning Machines、尤度学習マシン）を外部データと接続するための中央インターフェイスです。
-ChatGPTとの互換性のある非構造化データや構造化データを使用して、インメモリインデックスのスイートを提供します。
-標準的なベクトルデータベースとは異なりLlamaIndexはさまざまなインデックス戦略（例：ツリー、キーワードテーブル、ナレッジグラフ）をサポートしており、使用ケースに最適化されています。
-軽量で使いやすく、追加のデプロイメントは必要ありません。
-設定する必要があるのはいくつかの環境変数の設定（オプションで既存の保存されたインデックスJSONファイルを指定する）だけです。
-ただし、クエリのメタデータフィルタはまだサポートされていません。
-詳細な設定手順については、[`/docs/providers/llama/setup.md`](/docs/providers/llama/setup.md)を参照してください。
+[LlamaIndex](https://github.com/jerryjliu/llama_index) is a central interface to connect your LLM's with external data.
+It provides a suite of in-memory indices over your unstructured and structured data for use with ChatGPT.
+Unlike standard vector databases, LlamaIndex supports a wide range of indexing strategies (e.g. tree, keyword table, knowledge graph) optimized for different use-cases.
+It is light-weight, easy-to-use, and requires no additional deployment.
+All you need to do is specifying a few environment variables (optionally point to an existing saved Index json file).
+Note that metadata filters in queries are not yet supported.
+For detailed setup instructions, refer to [`/docs/providers/llama/setup.md`](/docs/providers/llama/setup.md).
 
-### APIをローカルで実行する
+#### Chroma
 
-APIをローカルで実行するにはまず`export`コマンドを使用して必要な環境変数を設定する必要があります。
+[Chroma](https://trychroma.com) is an AI-native open-source embedding database designed to make getting started as easy as possible. Chroma runs in-memory, or in a client-server setup. It supports metadata and keyword filtering out of the box. For detailed instructions, refer to [`/docs/providers/chroma/setup.md`](/docs/providers/chroma/setup.md).
+
+#### Azure Cognitive Search
+
+[Azure Cognitive Search](https://azure.microsoft.com/products/search/) is a complete retrieval cloud service that supports vector search, text search, and hybrid (vectors + text combined to yield the best of the two approaches). It also offers an [optional L2 re-ranking step](https://learn.microsoft.com/azure/search/semantic-search-overview) to further improve results quality. For detailed setup instructions, refer to [`/docs/providers/azuresearch/setup.md`](/docs/providers/azuresearch/setup.md)
+
+### Running the API locally
+
+To run the API locally, you first need to set the requisite environment variables with the `export` command:
 
 ```
-export DATASTORE=<あなたのデータストア>
-export BEARER_TOKEN=<あなたのベアラートークン>
-export OPENAI_API_KEY=<あなたの_openai_api_キー>
-<ここに選択したベクトルDBの環境変数を追加してください>
+export DATASTORE=<your_datastore>
+export BEARER_TOKEN=<your_bearer_token>
+export OPENAI_API_KEY=<your_openai_api_key>
+<Add the environment variables for your chosen vector DB here>
 ```
 
-APIを以下で開始します。
+Start the API with:
 
 ```
 poetry run start
 ```
 
-ターミナルに表示されるURLに`docs`を追加しブラウザで開いてAPIのドキュメントにアクセスしエンドポイントを試します（例：http://0.0.0.0:8000/docs ）Bearerトークンを入力し、APIエンドポイントをテストしてください。
+Append `docs` to the URL shown in the terminal and open it in a browser to access the API documentation and try out the endpoints (i.e. http://0.0.0.0:8000/docs). Make sure to enter your bearer token and test the API endpoints.
 
-**注：** pyproject.tomlファイルに新しい依存関係を追加する場合は、`poetry lock`および`poetry install`を実行してロックファイルを更新し、新しい依存関係をインストールする必要があります。
+**Note:** If you add new dependencies to the pyproject.toml file, you need to run `poetry lock` and `poetry install` to update the lock file and install the new dependencies.
 
-### ChatGPTでのlocalhostプラグインのテスト
+### Testing a Localhost Plugin in ChatGPT
 
-ローカルホストプラグインをChatGPTでテストするには、提供された[`local-server/main.py`](/local-server/main.py)ファイルを使用してください。これは、CORS設定、認証なし、マニフェスト、OpenAPIスキーマ、ロゴ用のルートが含まれているローカルホストテスト用に特別に設定されています。
+To test a localhost plugin in ChatGPT, use the provided [`local-server/main.py`](/local-server/main.py) file, which is specifically configured for localhost testing with CORS settings, no authentication and routes for the manifest, OpenAPI schema and logo.
 
-ローカルホストプラグインをテストするには、以下の手順を実行してください。
+Follow these steps to test your localhost plugin:
 
-1. `poetry run dev`コマンドを使用してローカルホストサーバを実行します。これによりデフォルトのアドレス（例：`localhost:3333`）でサーバが起動されます。
+1. Run the localhost server using the `poetry run dev` command. This starts the server at the default address (e.g. `localhost:3333`).
 
-2. [ChatGPT](https://chat.openai.com/)を開き、モデルピッカーから「プラグイン」を選択します。プラグインピッカーをクリックし、リストの一番下にある「プラグインストア」をクリックしてください。
+2. Visit [ChatGPT](https://chat.openai.com/), select "Plugins" from the model picker, click on the plugins picker, and click on "Plugin store" at the bottom of the list.
 
-3. 「あなた独自のプラグインを開発する」を選択し、求められたとおりにローカルホストURL（例：`localhost:3333`）を入力します。
+3. Choose "Develop your own plugin" and enter your localhost URL (e.g. `localhost:3333`) when prompted.
 
-4. これであなたのローカルホストプラグインがChatGPTセッションで有効になりました。
+4. Your localhost plugin is now enabled for your ChatGPT session.
 
-詳細については[OpenAI documentation](https://platform.openai.com/docs/plugins/getting-started/openapi-definition)を参照してください。
+For more information, refer to the [OpenAI documentation](https://platform.openai.com/docs/plugins/getting-started/openapi-definition).
 
-### パーソナライズ
+### Personalization
 
-次の方法で検索プラグインを、あなた自身の使用ケースに合わせてカスタマイズすることができます。
+You can personalize the Retrieval Plugin for your own use case by doing the following:
 
-- **ロゴを置き換える**：[logo.png](/.well-known/logo.png)の画像をあなた自身のロゴに置き換えてください。
+- **Replace the logo**: Replace the image in [logo.png](/.well-known/logo.png) with your own logo.
 
-- **データモデルを編集する**：[models.py](/models/models.py)の`DocumentMetadata`と`DocumentMetadataFilter`データモデルを編集して、カスタムメタデータフィールドを追加出来ます。[openapi.yaml](/.well-known/openapi.yaml)のOpenAPIスキーマをそれに応じて更新します。OpenAPIスキーマを簡単に更新するには、アプリをローカルで実行し`http://0.0.0.0:8000/sub/openapi.json` にアクセスしてウェブページの内容をコピーします。次に、[Swagger Editor](https://editor.swagger.io/)にJSONを貼り付けて、YAML形式に変換します。また[openapi.yaml](/.well-known/openapi.yaml)ファイルを[.well-known](/.well-known)フォルダ内のopenapi.jsonファイルに置き換えることもできます。
+- **Edit the data models**: Edit the `DocumentMetadata` and `DocumentMetadataFilter` data models in [models.py](/models/models.py) to add custom metadata fields. Update the OpenAPI schema in [openapi.yaml](/.well-known/openapi.yaml) accordingly. To update the OpenAPI schema more easily, you can run the app locally, then navigate to `http://0.0.0.0:8000/sub/openapi.json` and copy the contents of the webpage. Then go to [Swagger Editor](https://editor.swagger.io/) and paste in the JSON to convert it to a YAML format. You could also replace the [openapi.yaml](/.well-known/openapi.yaml) file with an openapi.json file in the [.well-known](/.well-known) folder.
 
-- **プラグイン名・説明・使用手順の説明を変更する**：プラグイン名、ユーザー向けの説明、モデルの使用手順の説明を更新します。[main.py](/server/main.py)ファイル内の説明を編集するか[openapi.yaml](/.well-known/openapi.yaml)ファイルを更新します。前のステップと同じ手順でOpenAPIスキーマを更新してください。
+- **Change the plugin name, description, and usage instructions**: Update the plugin name, user-facing description, and usage instructions for the model. You can either edit the descriptions in the [main.py](/server/main.py) file or update the [openapi.yaml](/.well-known/openapi.yaml) file. Follow the same instructions as in the previous step to update the OpenAPI schema.
 
-- **ChatGPTが会話から情報を保存できるようにする**：[memory example folder](/examples/memory)の指示に従ってください。
+- **Enable ChatGPT to save information from conversations**: See the instructions in the [memory example folder](/examples/memory).
 
+### Authentication Methods
 
-### 認証方法
+You can choose from four options for authenticating requests to your plugin:
 
-プラグインへのリクエストの認証には4つのオプションがあります。
+1. **No Authentication**: Anyone can add your plugin and use its API without any credentials. This option is suitable if you are only exposing documents that are not sensitive or already public. It provides no security for your data. If using this method, copy the contents of this [main.py](/examples/authentication-methods/no-auth/main.py) into the [actual main.py file](/server/main.py). Example manifest [here](/examples/authentication-methods/no-auth/ai-plugin.json).
 
-1. **No Authentication**：誰でもあなたのプラグインを追加し資格情報なしでそのAPIを使用することができます。これは、公開済みのドキュメントやセンシティブでないドキュメントだけを利用している場合に適しています。データのセキュリティは提供されません。この方法を使用する場合、[main.py](/examples/authentication-methods/no-auth/main.py)の内容を[actual main.py file](/server/main.py)にコピーしてください。例のマニフェストは[こちら](/examples/authentication-methods/no-auth/ai-plugin.json)。
+2. **HTTP Bearer**: You can use a secret token as a header to authorize requests to your plugin. There are two variants of this option:
 
-2. **HTTP Bearer**：シークレットトークンをヘッダーとして使用してプラグインへのリクエストを承認できます。このオプションには2つのバリエーションがあります。
+   - **User Level** (default for this implementation): Each user who adds your plugin to ChatGPT must provide the bearer token when adding the plugin. You can generate and distribute these tokens using any tool or method you prefer, such as [jwt.io](https://jwt.io/). This method provides better security as each user has to enter the shared access token. If you require a unique access token for each user, you will need to implement this yourself in the [main.py](/server/main.py) file. Example manifest [here](/examples/authentication-methods/user-http/ai-plugin.json).
 
-   - **User Level** (この実装のデフォルト):プラグインをChatGPTに追加する各ユーザーは、プラグインを追加する際にベアラートークンを提供する必要があります。これらのトークンは、[jwt.io](https://jwt.io/)などのツールや方法を使用して生成および配布することができます。この方法は、各ユーザーが共有アクセストークンを入力する必要があるため、より良いセキュリティが提供されます。各ユーザーにユニークなアクセストークンが必要な場合は、[main.py](/server/main.py)ファイルで自分で実装する必要があります。例のマニフェストは[こちら](/examples/authentication-methods/user-http/ai-plugin.json)。
+   - **Service Level**: Anyone can add your plugin and use its API without credentials, but you must add a bearer token when registering the plugin. When you install your plugin, you need to add your bearer token, and will then receive a token from ChatGPT that you must include in your hosted manifest file. Your token will be used by ChatGPT to authorize requests to your plugin on behalf of all users who add it. This method is more convenient for users, but it may be less secure as all users share the same token and do not need to add a token to install the plugin. Example manifest [here](/examples/authentication-methods/service-http/ai-plugin.json).
 
-   - **Service Level**:誰でも資格情報なしであなたのプラグインを追加し、APIを利用できますが、プラグインを登録するときにベアラトークンを追加する必要があります。プラグインをインストールする際に、ベアラートークンを追加してChatGPTからトークンを受け取り、それをホストされたマニフェストファイルに含める必要があります。あなたのトークンはそれを追加したすべてのユーザーを代表して、ChatGPTによるプラグインへのリクエストの承認に使用されます。この方法はユーザーにとって便利ですが、すべてのユーザーが同じトークンを共有しプラグインをインストールする際にトークンを追加する必要がないため、セキュリティが低くなる可能性があります。サンプルのマニフェストは[こちら](/examples/authentication-methods/service-http/ai-plugin.json)。
+3. **OAuth**: Users must go through an OAuth flow to add your plugin. You can use an OAuth provider to authenticate users who add your plugin and grant them access to your API. This method offers the highest level of security and control, as users authenticate through a trusted third-party provider. However, you will need to implement the OAuth flow yourself in the [main.py](/server/main.py) file and provide the necessary parameters in your manifest file. Example manifest [here](/examples/authentication-methods/oauth/ai-plugin.json).
 
-3. **OAuth**：ユーザーはOAuthフローを経てプラグインを追加する必要があります。OAuthプロバイダーを使用して、プラグインを追加するユーザーを認証し、APIへのアクセス許可を付与できます。この方法は、信頼できるサードパーティプロバイダーを介してユーザーが認証されるため、最高レベルのセキュリティと制御を提供します。ただし、[main.py](/server/main.py)ファイルでOAuthフローを自分で実装し、マニフェストファイルで必要なパラメータを提供する必要があります。例のマニフェストは[こちら](/examples/authentication-methods/oauth/ai-plugin.json)。
+Consider the benefits and drawbacks of each authentication method before choosing the one that best suits your use case and security requirements. If you choose to use a method different to the default (User Level HTTP), make sure to update the manifest file [here](/.well-known/ai-plugin.json).
 
-使いたい認証方法を選ぶ前に、各認証方法の利点と欠点を検討して、ユースケースとセキュリティ要件に最も適したものを選んでください。デフォルトと異なる方法（User Level HTTP）を使用する場合は、マニフェストファイル[ここ](/.well-known/ai-plugin.json)を更新してください。
+## Deployment
 
-## デプロイ
+You can deploy your app to different cloud providers, depending on your preferences and requirements. However, regardless of the provider you choose, you will need to update two files in your app: [openapi.yaml](/.well-known/openapi.yaml) and [ai-plugin.json](/.well-known/ai-plugin.json). As outlined above, these files define the API specification and the AI plugin configuration for your app, respectively. You need to change the url field in both files to match the address of your deployed app.
 
-お好みや要件に応じてさまざまなクラウドプロバイダにアプリをデプロイできます。ただし選択したプロバイダに関係なく、アプリ内の2つのファイルを更新する必要があります。[openapi.yaml](/.well-known/openapi.yaml)および[ai-plugin.json](/.well-known/ai-plugin.json)です。上記で説明したようにこれらのファイルは、それぞれアプリのAPI仕様とAIプラグイン構成を定義します。どちらのファイルのurlフィールドも、デプロイされたアプリのアドレスに合わせて変更する必要があります。
+Before deploying your app, you might want to remove unused dependencies from your [pyproject.toml](/pyproject.toml) file to reduce the size of your app and improve its performance. Depending on the vector database provider you choose, you can remove the packages that are not needed for your specific provider. Refer to the respective documentation in the [`/docs/deployment/removing-unused-dependencies.md`](/docs/deployment/removing-unused-dependencies.md) file for information on removing unused dependencies for each provider.
 
-アプリをデプロイする前に[pyproject.toml](./pyproject.toml)ファイルから、使用していない依存関係を削除して、アプリのサイズを減らしパフォーマンスを向上させることを検討してください。選択したベクターデータベースプロバイダに応じて、特定のプロバイダに必要ないパッケージを削除することが出来ます。各プロバイダの不要な依存関係を削除する方法については、[`/docs/deployment/removing-unused-dependencies.md`](/docs/deployment/removing-unused-dependencies.md)ファイルのドキュメントを参照してください。
+Once you have deployed your app, consider uploading an initial batch of documents using one of [these scripts](/scripts) or by calling the `/upsert` endpoint.
 
-アプリをデプロイしたら[これらのスクリプト](/scripts)のいずれかを使用して初期バッチのドキュメントをアップロードするか、`/upsert`エンドポイントを呼び出してみてください。
+- **Chroma:** Remove `pinecone-client`, `weaviate-client`, `pymilvus`, `qdrant-client`, and `redis`.
+- **Pinecone:** Remove `chromadb`, `weaviate-client`, `pymilvus`, `qdrant-client`, and `redis`.
+- **Weaviate:** Remove `chromadb`, `pinecone-client`, `pymilvus`, `qdrant-client`, and `redis`.
+- **Zilliz:** Remove `chromadb`, `pinecone-client`, `weaviate-client`, `qdrant-client`, and `redis`.
+- **Milvus:** Remove `chromadb`, `pinecone-client`, `weaviate-client`, `qdrant-client`, and `redis`.
+- **Qdrant:** Remove `chromadb`, `pinecone-client`, `weaviate-client`, `pymilvus`, and `redis`.
+- **Redis:** Remove `chromadb`, `pinecone-client`, `weaviate-client`, `pymilvus`, and `qdrant-client`.
 
-各プラットフォームの詳細なデプロイ手順は以下のとおりです。
+- [Deploying to Fly.io](/docs/deployment/flyio.md)
+- [Deploying to Heroku](/docs/deployment/heroku.md)
+- [Other Deployment Options](/docs/deployment/other-options.md) (Azure Container Apps, Google Cloud Run, AWS Elastic Container Service, etc.)
 
-- [Fly.ioへのデプロイ](/docs/deployment/flyio.md)
-- [Herokuへのデプロイ](/docs/deployment/heroku.md)
-- [その他のデプロイオプション](/docs/deployment/other-options.md)（Azure Container Apps、Google Cloud Run、AWS Elastic Container Serviceなど）
+After you create your app, make sure to change the plugin url in your plugin manifest file [here](/.well-known/ai-plugin.json), and in your OpenAPI schema [here](/.well-known/openapi.yaml), and redeploy.
 
-アプリを作成した後プラグインのマニフェストファイル[ここ](/.well-known/ai-plugin.json)のプラグインURLを変更し、OpenAPIスキーマ[ここ](/.well-known/openapi.yaml)を変更して再デプロイしてください。
+## Installing a Developer Plugin
 
-## 開発者プラグインのインストール
+To install a developer plugin, follow the steps below:
 
-開発者プラグインをインストールするには以下の手順に従ってください。
+- First, create your developer plugin by deploying it to your preferred hosting platform (e.g. Fly.io, Heroku, etc.) and updating the plugin URL in the manifest file and OpenAPI schema.
 
-- まずプラグインをあなたの好きなホスティングプラットフォーム（例えば、Fly.io、Herokuなど）にデプロイし、マニフェストファイルとOpenAPIスキーマのプラグインURLを更新します。
+- Go to [ChatGPT](https://chat.openai.com/) and select "Plugins" from the model picker.
 
-- [ChatGPT](https://chat.openai.com/)にアクセスしモデルピッカーから"Plugins"を選択します。
+- From the plugins picker, scroll to the bottom and click on "Plugin store."
 
-- プラグインピッカーから一番下までスクロールして"Plugin store"をクリックします。
+- Go to "Develop your own plugin" and follow the instructions provided. You will need to enter the domain where your plugin is deployed.
 
-- "Develop your own plugin"に進み、提供された手順に従います。プラグインがデプロイされたドメインを入力する必要があります。
+- Follow the instructions based on the authentication type you have chosen for your plugin (e.g. if your plugin uses Service Level HTTP, you will have to paste in your access token, then paste the new access token you receive from the plugin flow into your [ai-plugin.json](/.well-known/ai-plugin.json) file and redeploy your app).
 
-- プラグインで選択した認証タイプに基づいて手順に従います（例えば、プラグインがService Level HTTPを使用する場合、アクセス・トークンを貼り付ける必要があり、その後、[ai-plugin.json](/.well-known/ai-plugin.json)ファイルに取得した新しいアクセス・トークンを貼り付けてアプリを再デプロイする必要があります）。
+- Next, you must add your plugin. Go to the "Plugin store" again and click on "Install an unverified plugin."
 
-- 次にプラグインを追加する必要があります。再度"Plugin store" に移動して「Install an unverified plugin」をクリックします。
+- Follow the instructions provided, which will require you to enter the domain where your plugin is deployed.
 
-- プラグインがデプロイされたドメインを入力する必要がある手順に従います。
+- Follow the instructions based on the authentication type you have chosen for your plugin (e.g. if your plugin uses User Level HTTP, you will have to paste in your bearer token).
 
-- プラグインで選択した認証タイプに基づいて手順に従います（例えば、プラグインがUser Level HTTPを使用する場合、ベアラトークンを貼り付ける必要があります）。
+After completing these steps, your developer plugin should be installed and ready to use in ChatGPT.
 
-これらの手順を完了すると開発者プラグインがChatGPTにインストールされ使用準備ができます。
+## Webhooks
 
-## Webhook
+To keep the documents stored in the vector database up-to-date, consider using tools like [Zapier](https://zapier.com) or [Make](https://www.make.com) to configure incoming webhooks to your plugin's API based on events or schedules. For example, this could allow you to sync new information as you update your notes or receive emails. You can also use a [Zapier Transfer](https://zapier.com/blog/zapier-transfer-guide/) to batch process a collection of existing documents and upload them to the vector database.
 
-ベクトルデータベースに格納されたドキュメントを最新の状態に保つために、[Zapier](https://zapier.com)や[Make](https://www.make.com)のようなツールを使用して、イベントやスケジュールに基づいてプラグインのAPIへの着信ウェブフックを設定することを検討してください。例えば、これにより、ノートを更新したり、メールを受信したりするたびに、新しい情報を同期することができます。また、[Zapier Transfer](https://zapier.com/blog/zapier-transfer-guide/)を使用して、既存のドキュメントのコレクションを一括処理して、ベクトルデータベースにアップロードすることもできます。
+If you need to pass custom fields from these tools to your plugin, you might want to create an additional Retrieval Plugin API endpoint that calls the datastore's upsert function, such as `upsert-email`. This custom endpoint can be designed to accept specific fields from the webhook and process them accordingly.
 
-これらのツールからカスタムフィールドをプラグインに渡す場合は、「upsert-email」のように、データストアのupsert関数を呼び出す追加の検索プラグイン APIエンドポイントを作成することを検討してください。このカスタムエンドポイントは、ウェブフックから特定のフィールドを受け取り、それらを適宜処理するように設計することができます。
+To set up an incoming webhook, follow these general steps:
 
-着信ウェブフックを設定するには、次の一般的な手順に従ってください。
+- Choose a webhook tool like Zapier or Make and create an account.
+- Set up a new webhook or transfer in the tool, and configure it to trigger based on events or schedules.
+- Specify the target URL for the webhook, which should be the API endpoint of your retrieval plugin (e.g. `https://your-plugin-url.com/upsert`).
+- Configure the webhook payload to include the necessary data fields and format them according to your retrieval plugin's API requirements.
+- Test the webhook to ensure it's working correctly and sending data to your retrieval plugin as expected.
 
-- ZapierやMakeなどのウェブフックツールを選択し、アカウントを作成します。
-- ツールで新しいウェブフックまたはトランスファーを設定し、イベントやスケジュールに基づいてトリガーを設定します。
-- ウェブフックのターゲットURLを指定します。これは、あなたのRetrievalプラグインのAPIエンドポイントである必要があります（例えば、`https://your-plugin-url.com/upsert`）。
-- ウェブフックペイロードを構成して、必要なデータフィールドを含め、RetrievalプラグインのAPI要件に従ってフォーマットします。
-- ウェブフックが正しく機能し、Retrievalプラグインに期待されるようにデータを送信していることを確認するために、ウェブフックをテストします。
+After setting up the webhook, you may want to run a backfill to ensure that any previously missed data is included in the vector database.
 
-ウェブフックを設定した後は、以前に見逃したデータがベクトルデータベースに含まれるようにバックフィルを実行することをお勧めします。
+Remember that if you want to use incoming webhooks to continuously sync data, you should consider running a backfill after setting these up to avoid missing any data.
 
-データを連続的に同期するために着信ウェブフックを使用する場合は、これらを設定した後にバックフィルを実行することを忘れないでください。
+In addition to using tools like Zapier and Make, you can also build your own custom integrations to sync data with your Retrieval Plugin. This allows you to have more control over the data flow and tailor the integration to your specific needs and requirements.
 
-ZapierやMakeのようなツールを使用するだけでなく、独自のカスタム統合を構築してRetrievalプラグインとデータを同期することもできます。これにより、データフローをより細かく制御し、統合を特定のニーズや要件に合わせてカスタマイズすることができます。
+## Scripts
 
-## スクリプト
+The `scripts` folder contains scripts to batch upsert or process text documents from different data sources, such as a zip file, JSON file, or JSONL file. These scripts use the plugin's upsert utility functions to upload the documents and their metadata to the vector database, after converting them to plain text and splitting them into chunks. Each script folder has a README file that explains how to use it and what parameters it requires. You can also optionally screen the documents for personally identifiable information (PII) using a language model and skip them if detected, with the [`services.pii_detection`](/services/pii_detection.py) module. This can be helpful if you want to avoid uploading sensitive or private documents to the vector database unintentionally. Additionally, you can optionally extract metadata from the document text using a language model, with the [`services.extract_metadata`](/services/extract_metadata.py) module. This can be useful if you want to enrich the document metadata. **Note:** if using incoming webhooks to continuously sync data, consider running a backfill after setting these up to avoid missing any data.
 
-`scripts`フォルダには、異なるデータソース（zipファイル、JSONファイル、またはJSONLファイル）からテキストドキュメントをバッチでupsertまたは処理するスクリプトが含まれています。これらのスクリプトは、ドキュメントをプレーンテキストに変換し、チャンクに分割した後、プラグインのupsertユーティリティ関数を使用して、ドキュメントとそのメタデータをベクトルデータベースにアップロードします。各スクリプトフォルダには、使用方法と必要なパラメーターについて説明したREADMEファイルがあります。また、[`services.pii_detection`](/services/pii_detection.py)モジュールを使用して、個人を特定できる情報（PII）を言語モデルでスクリーニングし、検出された場合はスキップすることもできます。これは、意図せずに機密性の高いドキュメントをベクトルデータベースにアップロードするのを避けたい場合に役立ちます。さらに、[`services.extract_metadata`](/services/extract_metadata.py)モジュールを使用して、ドキュメントテキストからメタデータを抽出することもできます。これは、ドキュメントメタデータを豊かにする場合に役立ちます。**注意:**データを連続的に同期するための着信ウェブフックを使用する場合は、これらを設定した後にバックフィルを実行して、データを逃さないようにすることを検討してください。
+The scripts are:
 
-スクリプトは以下の通りです：
+- [`process_json`](scripts/process_json/): This script processes a file dump of documents in a JSON format and stores them in the vector database with some metadata. The format of the JSON file should be a list of JSON objects, where each object represents a document. The JSON object should have a `text` field and optionally other fields to populate the metadata. You can provide custom metadata as a JSON string and flags to screen for PII and extract metadata.
+- [`process_jsonl`](scripts/process_jsonl/): This script processes a file dump of documents in a JSONL format and stores them in the vector database with some metadata. The format of the JSONL file should be a newline-delimited JSON file, where each line is a valid JSON object representing a document. The JSON object should have a `text` field and optionally other fields to populate the metadata. You can provide custom metadata as a JSON string and flags to screen for PII and extract metadata.
+- [`process_zip`](scripts/process_zip/): This script processes a file dump of documents in a zip file and stores them in the vector database with some metadata. The format of the zip file should be a flat zip file folder of docx, pdf, txt, md, pptx or csv files. You can provide custom metadata as a JSON string and flags to screen for PII and extract metadata.
 
--- [`process_jsonl`](/scripts/process_jsonl/):このスクリプトは、JSONL形式のドキュメントのファイルダンプを処理し、それらをベクターデータベースにいくつかのメタデータとともに保存します。JSONLファイルの形式は、改行区切りのJSONファイルで、各行がドキュメントを表す有効なJSONオブジェクトである必要があります。JSONオブジェクトには`text`フィールドが必要で、オプションで他のフィールドをメタデータに追加することができます。カスタムメタデータをJSON文字列として提供し、PIIをスクリーニングし、メタデータを抽出するためのフラグを使うことができます。
+## Limitations
 
-- [`process_jsonl`](/scripts/process_jsonl):このスクリプトは、JSONL形式でドキュメントのファイルダンプを処理し、いくつかのメタデータとともにベクトルデータベースに格納します。JSONLファイルの形式は、各行がドキュメントを表す有効なJSONオブジェクトである改行区切りのJSONファイルである必要があります。JSONオブジェクトには、`text`フィールドと、必要に応じて他のフィールドが含まれている場合があります。JSON文字列とPIIのスクリーニングフラグをカスタムメタデータとして提供できます。
+While the ChatGPT Retrieval Plugin is designed to provide a flexible solution for semantic search and retrieval, it does have some limitations:
 
-- [`process_zip`](/scripts/process_zip):このスクリプトは、zipファイルでドキュメントのファイルダンプを処理し、いくつかのメタデータとともにベクトルデータベースに格納します。zipファイルの形式は、docx、pdf、txt、md、pptx、またはcsvファイルのフラットなzipファイルフォルダである必要があります。JSON文字列とPIIのスクリーニングフラグをカスタムメタデータとして提供できます。
+- **Keyword search limitations**: The embeddings generated by the `text-embedding-ada-002` model may not always be effective at capturing exact keyword matches. As a result, the plugin might not return the most relevant results for queries that rely heavily on specific keywords. Some vector databases, like Pinecone, Weaviate and Azure Cognitive Search, use hybrid search and might perform better for keyword searches.
+- **Sensitive data handling**: The plugin does not automatically detect or filter sensitive data. It is the responsibility of the developers to ensure that they have the necessary authorization to include content in the Retrieval Plugin and that the content complies with data privacy requirements.
+- **Scalability**: The performance of the plugin may vary depending on the chosen vector database provider and the size of the dataset. Some providers may offer better scalability and performance than others.
+- **Language support**: The plugin currently uses OpenAI's `text-embedding-ada-002` model, which is optimized for use in English. However, it is still robust enough to generate good results for a variety of languages.
+- **Metadata extraction**: The optional metadata extraction feature relies on a language model to extract information from the document text. This process may not always be accurate, and the quality of the extracted metadata may vary depending on the document content and structure.
+- **PII detection**: The optional PII detection feature is not foolproof and may not catch all instances of personally identifiable information. Use this feature with caution and verify its effectiveness for your specific use case.
 
+## Future Directions
 
-## 制限事項
+The ChatGPT Retrieval Plugin provides a flexible solution for semantic search and retrieval, but there is always potential for further development. We encourage users to contribute to the project by submitting pull requests for new features or enhancements. Notable contributions may be acknowledged with OpenAI credits.
 
-ChatGPT検索プラグインは、セマンティックサーチと検索のための柔軟なソリューションを提供するように設計されていますが、以下の制限があります：
+Some ideas for future directions include:
 
-- **キーワード検索の制限**: `text-embedding-ada-002`モデルによって生成される埋め込みは、厳密なキーワードマッチを正確にキャプチャすることができない場合があります。その結果プラグインは、特定のキーワードに重点を置いたクエリに対して、最も関連性の高い結果を返さない可能性があります。PineconeやWeaviateなどの一部のベクトルデータベースは、ハイブリッド検索を使用する事で、キーワード検索によりも優れたパフォーマンスを発揮する場合があります。
-- **機密性の高いデータの処理**:プラグインは、機密性の高いデータを自動的に検出したり、フィルタリングしたりはしません。開発者は検索プラグインにコンテンツを含めるために必要な承認を得ていることを確認し、コンテンツがデータプライバシーの要件に準拠していることを確認する責任があります。
+- **More vector database providers**: If you are interested in integrating another vector database provider with the ChatGPT Retrieval Plugin, feel free to submit an implementation.
+- **Additional scripts**: Expanding the range of scripts available for processing and uploading documents from various data sources would make the plugin even more versatile.
+- **User Interface**: Developing a user interface for managing documents and interacting with the plugin could improve the user experience.
+- **Hybrid search / TF-IDF option**: Enhancing the [datastore's upsert function](/datastore/datastore.py#L18) with an option to use hybrid search or TF-IDF indexing could improve the plugin's performance for keyword-based queries.
+- **Advanced chunking strategies and embeddings calculations**: Implementing more sophisticated chunking strategies and embeddings calculations, such as embedding document titles and summaries, performing weighted averaging of document chunks and summaries, or calculating the average embedding for a document, could lead to better search results.
+- **Custom metadata**: Allowing users to add custom metadata to document chunks, such as titles or other relevant information, might improve the retrieved results in some use cases.
+- **Additional optional services**: Integrating more optional services, such as summarizing documents or pre-processing documents before embedding them, could enhance the plugin's functionality and quality of retrieved results. These services could be implemented using language models and integrated directly into the plugin, rather than just being available in the scripts.
 
-- **スケーラビリティ**:プラグインのパフォーマンスは、選択したベクトルデータベースプロバイダとデータセットのサイズによって異なる場合があります。一部のプロバイダは、他のプロバイダよりも優れたスケーラビリティとパフォーマンスを提供する場合があります。
-- **言語サポート**: 現時点で使用されている`text-embedding-ada-002`モデルは、英語を対象に最適化されています。ただし、多様な言語に対して良好な結果を生成するだけの十分なロバスト性があります。
-- **メタデータの抽出**:オプションのメタデータ抽出機能は、ドキュメントテキストから情報を抽出するために言語モデルを使用しています。このプロセスは常に正確でない場合があり、抽出されたメタデータの品質はドキュメントの内容と構造によって異なる場合があります。
-- **PIIの検出**:オプションのPII検出機能は完全ではありません。個人を特定できる情報のすべてのインスタンスを捕捉出来るとは限りません。この機能を使用する場合は注意を払って、特定のユースケースに対してその効果を検証してください。
+We welcome contributions from the community to help improve the ChatGPT Retrieval Plugin and expand its capabilities. If you have an idea or feature you'd like to contribute, please submit a pull request to the repository.
 
-## 今後の方向性
+## Contributors
 
-ChatGPT検索プラグインは、セマンティック検索と検索のための柔軟なソリューションを提供しますが、さらなる開発の余地があります。新しい機能や改良のためのプルリクエストの提出によるプロジェクトへの貢献をお勧めします。注目すべき貢献にはOpenAIクレジットが与えられる場合があります。
-
-今後の方向性のアイデアには以下があります:
-
-- **より多くのベクトルデータベースプロバイダー**: ChatGPT検索プラグインと別のベクトルデータベースプロバイダーを統合することに興味がある場合は、実装を提出してください。
-- **追加スクリプト**: さまざまなデータソースからドキュメントを処理してアップロードするための利用可能なスクリプトの種類を増やすことで、プラグインはますます多くの目的に役立つようになります。
-- **ユーザーインターフェース**: ドキュメントの管理やプラグインとの対話を行うためのユーザーインターフェースを開発することで、ユーザーエクスペリエンスの向上を図ることができます。
-- **ハイブリッド検索 /TF-IDFオプション**：ハイブリッド検索またはTF-IDFインデックスを使用するオプションの、[データストアのアップサート機能](/datastore/datastore.py#L18)を強化することで、キーワードベースのクエリに対する、プラグインのパフォーマンスが向上する可能性があります。
-- **高度なチャンキング戦略と埋め込み計算**:より洗練されたチャンキング戦略と埋め込み計算の実装、例えば文書のタイトルや要約を埋め込む、文書のチャンクや要約を重み付け平均する、または文書の平均埋め込みを計算するなどの工夫により、より優れた検索結果を発揮できる可能性があります。
-- **カスタムメタデータ**:ドキュメントのタイトルや他の関連情報など、カスタムメタデータをドキュメントチャンクに追加することで、特定のユースケースで取得された結果が改善される可能性があります。
-- **追加のオプションサービス**:ドキュメントの要約や埋め込み前の前処理など、追加のサービスを統合することにより、プラグインの機能性と取得された結果の品質を向上が期待できます。これらのサービスはスクリプトだけでなく、言語モデルを使用して直接プラグインに統合して実装することができます。
-
-私たちは、ChatGPT検索プラグインの改善と機能拡張を支援するために、コミュニティからの貢献を歓迎します。アイデアや貢献したい機能がある場合は、リポジトリにプルリクエストを提出してください。
-
-## 貢献者
-
-以下の貢献者へ、コード及びドキュメントの貢献や、さまざまなベクターデータベースプロバイダーをChatGPT検索プラグインに統合するサポートを提供していただき、感謝いたします。
+We would like to extend our gratitude to the following contributors for their code / documentation contributions, and support in integrating various vector database providers with the ChatGPT Retrieval Plugin:
 
 - [Pinecone](https://www.pinecone.io/)
   - [acatav](https://github.com/acatav)
@@ -463,3 +503,6 @@ ChatGPT検索プラグインは、セマンティック検索と検索のため�
 - [Redis](https://redis.io/)
   - [spartee](https://github.com/spartee)
   - [tylerhutcherson](https://github.com/tylerhutcherson)
+- [LlamaIndex](https://github.com/jerryjliu/llama_index)
+  - [jerryjliu](https://github.com/jerryjliu)
+  - [Disiok](https://github.com/Disiok)

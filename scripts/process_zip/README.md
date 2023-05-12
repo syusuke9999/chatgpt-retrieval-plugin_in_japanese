@@ -1,24 +1,24 @@
-## ZIPファイルの処理
+## Process a ZIP File
 
-このスクリプトは、ドキュメントのファイルダンプを処理し、メタデータと一緒にベクトルデータベースに保存するためのユーティリティです。オプションで、言語モデルを使用して個人情報を検出してスキップすることもできます。また、スクリプトは、言語モデルを使用してドキュメントからメタデータを抽出することもできます。[`services/pii_detection`](../../services/pii_detection.py)のPII検出関数と[`services/extract_metadata`](../../services/extract_metadata.py)のメタデータ抽出関数をカスタマイズすることができます。
+This script is a utility to process a file dump of documents in a zip file and store them in the vector database with some metadata. It can also optionally screen the documents for personally identifiable information (PII) using a language model, and skip them if detected. Additionally, the script can extract metadata from the document using a language model. You can customize the PII detection function in [`services/pii_detection`](../../services/pii_detection.py) and the metadata extraction function in [`services/extract_metadata`](../../services/extract_metadata.py) for your use case.
 
-## 使用方法
+## Usage
 
-ターミナルからこのスクリプトを実行するには、このフォルダに移動し、以下のコマンドを使用します。
+To run this script from the terminal, navigate to this folder and use the following command:
 
 ```
 python process_zip.py --filepath path/to/file_dump.zip --custom_metadata '{"source": "email"}' --screen_for_pii True --extract_metadata True
 ```
 
-ここで：
+where:
 
-- `path/to/file_dump.zip`は、処理するファイルダンプの名前またはパスです。このzipファイルの形式は、docx、pdf、txt、md、pptxファイルを含むzipファイルである必要があります（内部フォルダ構造は任意のものが使用できます）。
-- `--custom_metadata`は、ドキュメントのメタデータを更新するためのオプションのJSON文字列です。たとえば、`{"source": "file"}`は、メタデータの各ドキュメントに`source`フィールドを値`file`で追加します。デフォルト値は空のJSONオブジェクト（ `{}`）です。
-- `--screen_for_pii`は、PII検出関数を使用するかどうかを示すオプションのブールフラグです。`True`に設定された場合、スクリプトは[`services/pii_detection`](../../services/pii_detection.py)モジュールの`screen_text_for_pii`関数を使用して、言語モデルを使用してドキュメントテキストにPIIが含まれているかどうかを確認します。 PIIが検出されると、スクリプトは警告を表示してドキュメントをスキップします。デフォルト値は`False`です。
-- `--extract_metadata`は、言語モデルを使用してドキュメントからメタデータを抽出し、メタデータオブジェクトを更新するかどうかを示すオプションのブールフラグです。`True`に設定された場合、スクリプトは[`services/extract_metadata`](../../services/extract_metadata.py)モジュールの`extract_metadata_from_document`関数を使用して、ドキュメントテキストからメタデータを抽出し、メタデータオブジェクトを更新します。デフォルト値は `False`です。
+- `path/to/file_dump.zip` is the name or path to the file dump to be processed. The format of this zip file should be a zip file containing of docx, pdf, txt, md and pptx files (any internal folder structure is acceptable).
+- `--custom_metadata` is an optional JSON string of key-value pairs to update the metadata of the documents. For example, `{"source": "file"}` will add a `source` field with the value `file` to the metadata of each document. The default value is an empty JSON object (`{}`).
+- `--screen_for_pii` is an optional boolean flag to indicate whether to use the PII detection function or not. If set to `True`, the script will use the `screen_text_for_pii` function from the [`services/pii_detection`](../../services/pii_detection.py) module to check if the document text contains any PII using a language model. If PII is detected, the script will print a warning and skip the document. The default value is `False`.
+- `--extract_metadata` is an optional boolean flag to indicate whether to try to extract metadata from the document using a language model. If set to `True`, the script will use the `extract_metadata_from_document` function from the [`services/extract_metadata`](../../services/extract_metadata.py) module to extract metadata from the document text and update the metadata object accordingly. The default value is`False`.
 
-スクリプトは、ファイルをzipファイルから一時ディレクトリに抽出し、各ファイルを処理してドキュメントテキストとメタデータをデータベースに保存し、その後一時ディレクトリとその内容を削除します。必要に応じて、一部の進行状況メッセージとエラーメッセージを表示します。
+The script will extract the files from the zip file into a temporary directory named `dump`, process each file and store the document text and metadata in the database, and then delete the temporary directory and its contents. It will also print some progress messages and error messages if any.
 
-オプションと説明の概要を取得するには、`python process_zip.py -h`を使用することができます。
+You can use `python process_zip.py -h` to get a summary of the options and their descriptions.
 
-[example.zip](example.zip)のサンプルファイルでスクリプトをテストできます。
+Test the script with the example file, [example.zip](example.zip).
