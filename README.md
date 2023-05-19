@@ -9,7 +9,7 @@ Find an example video of a Retrieval Plugin that has access to the UN Annual Rep
 The ChatGPT Retrieval Plugin repository provides a flexible solution for semantic search and retrieval of personal or organizational documents using natural language queries. The repository is organized into several directories:
 
 | Directory                       | Description                                                                                                                |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+|---------------------------------|----------------------------------------------------------------------------------------------------------------------------|
 | [`datastore`](/datastore)       | Contains the core logic for storing and querying document embeddings using various vector database providers.              |
 | [`docs`](/docs)                 | Includes documentation for setting up and using each vector database provider, webhooks, and removing unused dependencies. |
 | [`examples`](/examples)         | Provides example configurations, authentication methods, and provider-specific examples.                                   |
